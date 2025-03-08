@@ -2,6 +2,7 @@
 
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
+import { cn, isLightColor } from "@/lib/utils";
 import { useState, useEffect, Suspense } from "react";
 import {
   Stage,
@@ -51,7 +52,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center bg-white">
       <header className="w-full py-6 px-8 border-b border-gray-100">
         <h1 className="text-3xl font-bold text-center text-gray-900">
-          FASHION <span className="text-accent">STUDIO</span>
+          FASHION <span className="text-destructive">STUDIO</span>
         </h1>
       </header>
 
@@ -91,11 +92,12 @@ export default function Home() {
                 {colorOptions.map((colorOption) => (
                   <button
                     key={colorOption.value}
-                    className={`w-10 h-10 rounded-full border-2 ${
+                    className={cn(
+                      "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
                       color === colorOption.value
                         ? "border-accent"
                         : "border-gray-200"
-                    } transition-all hover:scale-110`}
+                    )}
                     style={{ backgroundColor: colorOption.value }}
                     onClick={() => setColor(colorOption.value)}
                     title={colorOption.name}
@@ -111,11 +113,12 @@ export default function Home() {
                     className="w-10 h-10 cursor-pointer rounded-sm overflow-hidden absolute inset-0 opacity-0"
                   />
                   <div
-                    className={`w-10 h-10 rounded-sm border-2 ${
+                    className={cn(
+                      "w-10 h-10 rounded-sm border-2 transition-all hover:scale-110 flex items-center justify-center",
                       colorOptions.some((opt) => opt.value === color)
                         ? "border-gray-200"
                         : "border-accent"
-                    } transition-all hover:scale-110 flex items-center justify-center`}
+                    )}
                     style={{ backgroundColor: color }}
                     title="Custom Color"
                   >
@@ -144,13 +147,3 @@ export default function Home() {
 
 // Preload models
 useGLTF.preload("/shirt.glb");
-
-// Helper function to determine if a color is light or dark
-function isLightColor(color: string) {
-  const hex = color.replace("#", "");
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  return brightness > 128;
-}
