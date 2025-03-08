@@ -50,7 +50,9 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
       <header className="w-full py-6 px-8 border-b border-gray-100">
-        <h1 className="text-3xl font-bold text-center text-gray-900">FASHION <span className="text-accent">STUDIO</span></h1>
+        <h1 className="text-3xl font-bold text-center text-gray-900">
+          FASHION <span className="text-accent">STUDIO</span>
+        </h1>
       </header>
 
       <div className="flex flex-col md:flex-row w-full flex-grow">
@@ -76,11 +78,15 @@ export default function Home() {
         {/* Customization Panel - Right half on desktop */}
         <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
           <div className="max-w-md mx-auto">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-900">Customize Your T-Shirt</h2>
-            
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+              Customize Your T-Shirt
+            </h2>
+
             {/* Color selection */}
             <div className="mb-8">
-              <h3 className="text-lg font-medium mb-4 text-gray-800">Choose Color</h3>
+              <h3 className="text-lg font-medium mb-4 text-gray-800">
+                Choose Color
+              </h3>
               <div className="flex gap-3 flex-wrap">
                 {colorOptions.map((colorOption) => (
                   <button
@@ -95,6 +101,32 @@ export default function Home() {
                     title={colorOption.name}
                   />
                 ))}
+
+                {/* Custom color picker - now inline with other colors */}
+                <div className="relative">
+                  <input
+                    type="color"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                    className="w-10 h-10 cursor-pointer rounded-sm overflow-hidden absolute inset-0 opacity-0"
+                  />
+                  <div
+                    className={`w-10 h-10 rounded-sm border-2 ${
+                      colorOptions.some((opt) => opt.value === color)
+                        ? "border-gray-200"
+                        : "border-accent"
+                    } transition-all hover:scale-110 flex items-center justify-center`}
+                    style={{ backgroundColor: color }}
+                    title="Custom Color"
+                  >
+                    <span
+                      className="text-xs font-bold"
+                      style={{ color: isLightColor(color) ? "#000" : "#fff" }}
+                    >
+                      +
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -112,3 +144,13 @@ export default function Home() {
 
 // Preload models
 useGLTF.preload("/shirt.glb");
+
+// Helper function to determine if a color is light or dark
+function isLightColor(color: string) {
+  const hex = color.replace("#", "");
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 128;
+}
