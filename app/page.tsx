@@ -3,38 +3,21 @@
 import * as THREE from "three";
 import { cn, isLightColor } from "@/lib/utils";
 import { Canvas } from "@react-three/fiber";
-import { useState, useEffect, Suspense } from "react";
-import {
-  Stage,
-  Center,
-  useGLTF,
-  Environment,
-  OrbitControls,
-} from "@react-three/drei";
+import { useState, Suspense } from "react";
+import { Stage, useGLTF, Environment, OrbitControls } from "@react-three/drei";
 
 // Model component
 function TShirtModel({ color }: { color: string }) {
-  const { scene } = useGLTF("/shirt.glb");
-
-  // Find and store the shirt mesh reference
-  useEffect(() => {
-    scene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const meshChild = child as THREE.Mesh;
-        if (meshChild.material) {
-          // Update material color
-          if (meshChild.material instanceof THREE.MeshStandardMaterial) {
-            meshChild.material.color = new THREE.Color(color);
-          }
-        }
-      }
-    });
-  }, [scene, color]);
+  const { nodes } = useGLTF("/shirt_man.glb");
 
   return (
-    <group>
-      <primitive object={scene} scale={1.5} position={[0, 0, 0]} />
-    </group>
+    <mesh
+      castShadow
+      receiveShadow
+      geometry={(nodes.man as THREE.Mesh).geometry}
+    >
+      <meshStandardMaterial color={color} />
+    </mesh>
   );
 }
 
@@ -68,19 +51,13 @@ export default function Home() {
       <div className="flex flex-col md:flex-row w-full flex-grow">
         {/* 3D Canvas - Left half on desktop */}
         <div className="w-full md:w-1/2 h-[50vh] md:h-auto bg-secondary rounded-lg overflow-hidden">
-          <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
+          <Canvas>
             <Suspense fallback={null}>
-              <Stage environment="city" intensity={0.5}>
-                <Center>
-                  <TShirtModel color={color} />
-                </Center>
+              <Stage environment="city" shadows={false}>
+                <TShirtModel color={color} />
               </Stage>
             </Suspense>
-            <OrbitControls
-              enablePan={true}
-              enableZoom={true}
-              enableRotate={true}
-            />
+            <OrbitControls />
             <Environment preset="city" />
           </Canvas>
         </div>
@@ -113,7 +90,7 @@ export default function Home() {
                   />
                 ))}
 
-                {/* Custom color picker - now inline with other colors */}
+                {/* Custom color picker - inline with other colors */}
                 <div className="relative">
                   <input
                     type="color"
@@ -155,4 +132,4 @@ export default function Home() {
 }
 
 // Preload models
-useGLTF.preload("/shirt.glb");
+useGLTF.preload("/shirt_man.glb");
