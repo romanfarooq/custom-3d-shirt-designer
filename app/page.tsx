@@ -1,26 +1,50 @@
 "use client";
 
 import * as THREE from "three";
-import { Canvas } from "@react-three/fiber";
+import { Image, Upload } from "lucide-react";
 import { cn, isLightColor } from "@/lib/utils";
-import { useState, useEffect, Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
+import { useState, useEffect, Suspense, useRef } from "react";
 import {
   Stage,
+  Decal,
   Center,
   useGLTF,
+  useTexture,
   Environment,
   OrbitControls,
 } from "@react-three/drei";
 
-// Model component
-function TShirtModel({ color }: { color: string }) {
-  const { scene } = useGLTF("/shirt.glb");
+interface ImageDetails {
+  url: string;
+  scale: number;
+  visible: boolean;
+}
 
+interface TShirtModelProps {
+  color: string;
+  imageDetails: ImageDetails;
+}
+
+// Model component
+function TShirtModel({ color, imageDetails }: TShirtModelProps) {
+  const { scene } = useGLTF("/shirt.glb");
+  const groupRef = useRef<THREE.Group>(null);
+  const shirtMeshRef = useRef<THREE.Mesh>(null);
+  const texture = useTexture(imageDetails.url);
+
+  // Find and store the shirt mesh reference
   useEffect(() => {
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const meshChild = child as THREE.Mesh;
         if (meshChild.material) {
+          // Store the first mesh we find (which should be the shirt)
+          if (!shirtMeshRef.current) {
+            shirtMeshRef.current = meshChild;
+          }
+
+          // Update material color
           if (meshChild.material instanceof THREE.MeshStandardMaterial) {
             meshChild.material.color = new THREE.Color(color);
           } else {
@@ -31,14 +55,86 @@ function TShirtModel({ color }: { color: string }) {
     });
   }, [scene, color]);
 
-  return <primitive object={scene} scale={1.5} position={[0, 0, 0]} />;
+  return (
+    <group ref={groupRef}>
+      <primitive object={scene} scale={1.5} position={[0, 0, 0]} />
+
+      {/* Apply decal directly to the shirt mesh */}
+      {imageDetails.url && imageDetails.visible && shirtMeshRef.current && (
+        <Decal
+          mesh={shirtMeshRef as React.RefObject<THREE.Mesh>}
+          scale={imageDetails.scale}
+          position={[0, 0.15, 0.15]}
+          rotation={[0, 0, 0]}
+        >
+          <meshPhysicalMaterial
+            transparent
+            polygonOffset
+            polygonOffsetFactor={-1}
+            map={texture}
+          />
+        </Decal>
+      )}
+    </group>
+  );
+}
+
+interface ColorOption {
+  name: string;
+  value: string;
+}
+
+interface ImageDetailsState {
+  url: string;
+  scale: number;
+  visible: boolean;
 }
 
 // Main component
 export default function Home() {
-  const [color, setColor] = useState("#F3F4F6"); // Default color
+  const [color, setColor] = useState<string>("#F3F4F6"); // Default color
+  const [imageDetails, setImageDetails] = useState<ImageDetailsState>({
+    url: "",
+    scale: 0.5, // Adjusted scale for better visibility
+    visible: false,
+  });
 
-  const colorOptions = [
+  // Function to handle image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.match("image.*")) {
+      const reader = new FileReader();
+      reader.onload = (event: ProgressEvent<FileReader>) => {
+        const target = event.target;
+        if (target && target.result) {
+          setImageDetails((prev) => ({
+            ...prev,
+            url: target.result as string,
+            visible: true,
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Function to toggle image visibility
+  const toggleImageVisibility = () => {
+    setImageDetails((prev) => ({
+      ...prev,
+      visible: !prev.visible,
+    }));
+  };
+
+  // Function to adjust image scale
+  const adjustImageScale = (value: number) => {
+    setImageDetails((prev) => ({
+      ...prev,
+      scale: value,
+    }));
+  };
+
+  const colorOptions: ColorOption[] = [
     { name: "White", value: "#F3F4F6" },
     { name: "Blue", value: "#3B82F6" },
     { name: "Red", value: "#EF4444" },
@@ -63,7 +159,7 @@ export default function Home() {
             <Suspense fallback={null}>
               <Stage environment="city" intensity={0.5}>
                 <Center>
-                  <TShirtModel color={color} />
+                  <TShirtModel color={color} imageDetails={imageDetails} />
                 </Center>
               </Stage>
             </Suspense>
@@ -130,6 +226,65 @@ export default function Home() {
                     </span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Image upload section */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-4 text-gray-800">
+                Add Image
+              </h3>
+
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center justify-center w-full h-12 px-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-gray-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Upload className="w-5 h-5 mr-2 text-gray-500" />
+                    <span className="text-sm text-gray-600">Upload Image</span>
+                  </label>
+
+                  {imageDetails.url && (
+                    <button
+                      onClick={toggleImageVisibility}
+                      className={cn(
+                        "flex items-center justify-center h-12 px-4 border-2 rounded-md transition-colors",
+                        imageDetails.visible
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-gray-300 text-gray-500"
+                      )}
+                    >
+                      <Image className="w-5 h-5 mr-2" />
+                      <span className="text-sm">
+                        {imageDetails.visible ? "Hide Image" : "Show Image"}
+                      </span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Scale slider for the image */}
+                {imageDetails.url && imageDetails.visible && (
+                  <div className="mt-4">
+                    <label className="text-sm text-gray-600 block mb-2">
+                      Image Size: {(imageDetails.scale * 100).toFixed(0)}%
+                    </label>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="1"
+                      step="0.05"
+                      value={imageDetails.scale}
+                      onChange={(e) =>
+                        adjustImageScale(parseFloat(e.target.value))
+                      }
+                      className="w-full"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
