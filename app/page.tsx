@@ -21,24 +21,19 @@ function TShirtModel({ color }: { color: string }) {
   );
 }
 
-interface ColorOption {
-  name: string;
-  value: string;
-}
+const colorOptions = [
+  { name: "White", value: "#F3F4F6" },
+  { name: "Blue", value: "#3B82F6" },
+  { name: "Red", value: "#EF4444" },
+  { name: "Green", value: "#10B981" },
+  { name: "Purple", value: "#8B5CF6" },
+  { name: "Yellow", value: "#F59E0B" },
+  { name: "Black", value: "#1F2937" },
+];
 
 // Main component
 export default function Home() {
   const [color, setColor] = useState<string>("#F3F4F6"); // Default color
-
-  const colorOptions: ColorOption[] = [
-    { name: "White", value: "#F3F4F6" },
-    { name: "Blue", value: "#3B82F6" },
-    { name: "Red", value: "#EF4444" },
-    { name: "Green", value: "#10B981" },
-    { name: "Purple", value: "#8B5CF6" },
-    { name: "Yellow", value: "#F59E0B" },
-    { name: "Black", value: "#1F2937" },
-  ];
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
