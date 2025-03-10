@@ -7,14 +7,28 @@ import { useState, Suspense } from "react";
 import { Stage, useGLTF, OrbitControls } from "@react-three/drei";
 
 // Model component
-function TShirtModel({ color }: { color: string }) {
+function ManShirtModel({ color }: { color: string }) {
   const { nodes } = useGLTF("/shirt_man.glb");
 
   return (
     <mesh
+      geometry={(nodes.man as THREE.Mesh).geometry}
       position={[0.0066, -0.808, -26.52]} // Adjusted center
       rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
-      geometry={(nodes.man as THREE.Mesh).geometry}
+    >
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+}
+
+function WomanShirtModel({ color }: { color: string }) {
+  const { nodes } = useGLTF("/shirt_woman.glb");
+
+  return (
+    <mesh
+      geometry={(nodes.woman as THREE.Mesh).geometry}
+      position={[-60.83, 0.31, -24.05]} // Adjusted center
+      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
     >
       <meshStandardMaterial color={color} />
     </mesh>
@@ -34,6 +48,7 @@ const colorOptions = [
 // Main component
 export default function Home() {
   const [color, setColor] = useState<string>("#F3F4F6"); // Default color
+  const [gender, setGender] = useState<"man" | "woman">("man"); // Default gender
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
@@ -49,7 +64,11 @@ export default function Home() {
           <Canvas>
             <Suspense fallback={null}>
               <Stage environment="city" shadows={false}>
-                <TShirtModel color={color} />
+                {gender === "man" ? (
+                  <ManShirtModel color={color} />
+                ) : (
+                  <WomanShirtModel color={color} />
+                )}
               </Stage>
             </Suspense>
             <OrbitControls />
@@ -63,6 +82,37 @@ export default function Home() {
               Customize Your T-Shirt
             </h2>
 
+            {/* Gender selection */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium mb-4 text-gray-800">
+                Choose Shirt
+              </h3>
+              <div className="flex gap-4">
+                <button
+                  className={cn(
+                    "px-6 py-3 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
+                    gender === "man"
+                      ? "bg-accent  text-gray-800 shadow-md transform scale-105"
+                      : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                  )}
+                  onClick={() => setGender("man")}
+                >
+                  Man
+                </button>
+                <button
+                  className={cn(
+                    "px-6 py-3 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
+                    gender === "woman"
+                      ? "bg-accent text-gray-800 shadow-md transform scale-105"
+                      : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                  )}
+                  onClick={() => setGender("woman")}
+                >
+                  Woman
+                </button>
+              </div>
+            </div>
+
             {/* Color selection */}
             <div className="mb-8">
               <h3 className="text-lg font-medium mb-4 text-gray-800">
@@ -73,7 +123,7 @@ export default function Home() {
                   <button
                     key={colorOption.value}
                     className={cn(
-                      "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
+                      "w-10 h-10 rounded-full border-2 cursor-pointer transition-all hover:scale-110",
                       color === colorOption.value
                         ? "border-accent"
                         : "border-gray-200"
@@ -127,3 +177,4 @@ export default function Home() {
 
 // Preload models
 useGLTF.preload("/shirt_man.glb");
+useGLTF.preload("/shirt_woman.glb");
