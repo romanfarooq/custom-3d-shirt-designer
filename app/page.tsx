@@ -3,24 +3,65 @@
 import * as THREE from "three";
 import { cn, isLightColor } from "@/lib/utils";
 import { Canvas } from "@react-three/fiber";
-import { useState, Suspense } from "react";
-import { Stage, useGLTF, OrbitControls } from "@react-three/drei";
+import { Suspense } from "react";
+import { useClothingStore } from "@/lib/store";
+import {
+  Stage,
+  Decal,
+  useGLTF,
+  useTexture,
+  OrbitControls,
+} from "@react-three/drei";
 
-// Model component
-function ManShirtModel({ color }: { color: string }) {
+function ManShirtModel() {
+  const { color } = useClothingStore();
   const { nodes } = useGLTF("/shirt_man.glb");
+  const texture = useTexture("/placeholder.jpg");
 
+  return (
+    <mesh
+      geometry={(nodes.man as THREE.Mesh).geometry}
+      position={[0.0066, -0.808, -26.52]} // Adjusted center
+      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
+    >
+      <meshStandardMaterial color={color} />
+      <Decal
+        debug // Makes "bounding box" of the decal visible
+        position={[0, 0, 0]} // Position of the decal
+        rotation={[0, 0, 0]} // Rotation of the decal (can be a vector or a degree in radians)
+        scale={1} // Scale of the decal
+      >
+        <meshBasicMaterial
+          map={texture}
+          polygonOffset
+          polygonOffsetFactor={-1} // The material should take precedence over the original
+        />
+      </Decal>
+    </mesh>
+  );
+}
+
+function WomanShirtModel() {
+  const { color } = useClothingStore();
+  const { nodes } = useGLTF("/shirt_woman.glb");
+
+  return (
+    <mesh
+      geometry={(nodes.woman as THREE.Mesh).geometry}
+      position={[-60.83, 0.31, -24.05]} // Adjusted center
+      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
+    >
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+}
+
+function WomanShirtCanvas() {
   return (
     <Canvas>
       <Suspense fallback={null}>
         <Stage environment="city" shadows={false}>
-          <mesh
-            geometry={(nodes.man as THREE.Mesh).geometry}
-            position={[0.0066, -0.808, -26.52]} // Adjusted center
-            rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
-          >
-            <meshStandardMaterial color={color} />
-          </mesh>
+          <WomanShirtModel />
         </Stage>
       </Suspense>
       <OrbitControls />
@@ -28,20 +69,12 @@ function ManShirtModel({ color }: { color: string }) {
   );
 }
 
-function WomanShirtModel({ color }: { color: string }) {
-  const { nodes } = useGLTF("/shirt_woman.glb");
-
+function ManShirtCanvas() {
   return (
     <Canvas>
       <Suspense fallback={null}>
         <Stage environment="city" shadows={false}>
-          <mesh
-            geometry={(nodes.woman as THREE.Mesh).geometry}
-            position={[-60.83, 0.31, -24.05]} // Adjusted center
-            rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
-          >
-            <meshStandardMaterial color={color} />
-          </mesh>
+          <ManShirtModel />
         </Stage>
       </Suspense>
       <OrbitControls />
@@ -61,8 +94,7 @@ const colorOptions = [
 
 // Main component
 export default function Home() {
-  const [color, setColor] = useState<string>("#F3F4F6"); // Default color
-  const [gender, setGender] = useState<"man" | "woman">("man"); // Default gender
+  const { color, gender, setColor, setGender } = useClothingStore();
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
@@ -75,11 +107,7 @@ export default function Home() {
       <div className="flex flex-col md:flex-row w-full flex-grow">
         {/* 3D Canvas - Left half on desktop */}
         <div className="w-full md:w-1/2 h-[50vh] md:h-auto bg-secondary rounded-lg overflow-hidden">
-          {gender === "man" ? (
-            <ManShirtModel color={color} />
-          ) : (
-            <WomanShirtModel color={color} />
-          )}
+          {gender === "man" ? <ManShirtCanvas /> : <WomanShirtCanvas />}
         </div>
 
         {/* Customization Panel - Right half on desktop */}
