@@ -21,18 +21,19 @@ function ManShirtModel() {
   return (
     <mesh
       geometry={(nodes.man as THREE.Mesh).geometry}
-      position={[0.0066, -0.808, -26.52]} // Adjusted center
+      position={[0, -0.8, 0]} // Adjusted center
       rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
     >
       <meshStandardMaterial color={color} />
       <Decal
-        debug // Makes "bounding box" of the decal visible
-        position={[0, 0, 0]} // Position of the decal
-        rotation={[0, 0, 0]} // Rotation of the decal (can be a vector or a degree in radians)
-        scale={1} // Scale of the decal
+        debug
+        position={[0, 0, 0]} // Centered on the front of the shirt
+        rotation={[0, 0, 0]} // Aligned with the shirt front
+        scale={1} // Original scale of the image
       >
         <meshBasicMaterial
           map={texture}
+          transparent
           polygonOffset
           polygonOffsetFactor={-1} // The material should take precedence over the original
         />
@@ -48,7 +49,7 @@ function WomanShirtModel() {
   return (
     <mesh
       geometry={(nodes.woman as THREE.Mesh).geometry}
-      position={[-60.83, 0.31, -24.05]} // Adjusted center
+      position={[0, -0.8, 0]} // Adjusted center
       rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
     >
       <meshStandardMaterial color={color} />
@@ -125,7 +126,7 @@ export default function Home() {
               <div className="flex gap-4">
                 <button
                   className={cn(
-                    "px-6 py-3 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
+                    "py-3 w-24 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
                     gender === "man"
                       ? "bg-accent  text-gray-800 shadow-md transform scale-105"
                       : "bg-gray-100 text-gray-400 hover:bg-gray-200"
@@ -136,7 +137,7 @@ export default function Home() {
                 </button>
                 <button
                   className={cn(
-                    "px-6 py-3 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
+                    "py-3 w-24 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
                     gender === "woman"
                       ? "bg-accent text-gray-800 shadow-md transform scale-105"
                       : "bg-gray-100 text-gray-400 hover:bg-gray-200"
