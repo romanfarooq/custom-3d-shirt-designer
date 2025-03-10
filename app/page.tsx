@@ -11,13 +11,20 @@ function ManShirtModel({ color }: { color: string }) {
   const { nodes } = useGLTF("/shirt_man.glb");
 
   return (
-    <mesh
-      geometry={(nodes.man as THREE.Mesh).geometry}
-      position={[0.0066, -0.808, -26.52]} // Adjusted center
-      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
-    >
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <Canvas>
+      <Suspense fallback={null}>
+        <Stage environment="city" shadows={false}>
+          <mesh
+            geometry={(nodes.man as THREE.Mesh).geometry}
+            position={[0.0066, -0.808, -26.52]} // Adjusted center
+            rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
+          >
+            <meshStandardMaterial color={color} />
+          </mesh>
+        </Stage>
+      </Suspense>
+      <OrbitControls />
+    </Canvas>
   );
 }
 
@@ -25,13 +32,20 @@ function WomanShirtModel({ color }: { color: string }) {
   const { nodes } = useGLTF("/shirt_woman.glb");
 
   return (
-    <mesh
-      geometry={(nodes.woman as THREE.Mesh).geometry}
-      position={[-60.83, 0.31, -24.05]} // Adjusted center
-      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
-    >
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <Canvas>
+      <Suspense fallback={null}>
+        <Stage environment="city" shadows={false}>
+          <mesh
+            geometry={(nodes.woman as THREE.Mesh).geometry}
+            position={[-60.83, 0.31, -24.05]} // Adjusted center
+            rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
+          >
+            <meshStandardMaterial color={color} />
+          </mesh>
+        </Stage>
+      </Suspense>
+      <OrbitControls />
+    </Canvas>
   );
 }
 
@@ -61,18 +75,11 @@ export default function Home() {
       <div className="flex flex-col md:flex-row w-full flex-grow">
         {/* 3D Canvas - Left half on desktop */}
         <div className="w-full md:w-1/2 h-[50vh] md:h-auto bg-secondary rounded-lg overflow-hidden">
-          <Canvas>
-            <Suspense fallback={null}>
-              <Stage environment="city" shadows={false}>
-                {gender === "man" ? (
-                  <ManShirtModel color={color} />
-                ) : (
-                  <WomanShirtModel color={color} />
-                )}
-              </Stage>
-            </Suspense>
-            <OrbitControls />
-          </Canvas>
+          {gender === "man" ? (
+            <ManShirtModel color={color} />
+          ) : (
+            <WomanShirtModel color={color} />
+          )}
         </div>
 
         {/* Customization Panel - Right half on desktop */}
