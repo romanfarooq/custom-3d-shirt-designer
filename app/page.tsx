@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { cn, isLightColor } from "@/lib/utils";
 import { Canvas } from "@react-three/fiber";
 import { useState, Suspense } from "react";
-import { Stage, useGLTF, Environment, OrbitControls } from "@react-three/drei";
+import { Stage, useGLTF, OrbitControls } from "@react-three/drei";
 
 // Model component
 function TShirtModel({ color }: { color: string }) {
@@ -12,8 +12,8 @@ function TShirtModel({ color }: { color: string }) {
 
   return (
     <mesh
-      castShadow
-      receiveShadow
+      position={[0.0066, -0.808, -26.52]} // Adjusted center
+      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
       geometry={(nodes.man as THREE.Mesh).geometry}
     >
       <meshStandardMaterial color={color} />
@@ -53,7 +53,6 @@ export default function Home() {
               </Stage>
             </Suspense>
             <OrbitControls />
-            <Environment preset="city" />
           </Canvas>
         </div>
 
