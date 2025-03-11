@@ -14,10 +14,10 @@ import {
 } from "@react-three/drei";
 
 function ManShirtModel() {
-  const texture = useTexture("/placeholder.jpg");
-  const meshRef = useRef<THREE.Mesh | null>(null);
   const { nodes, materials } = useGLTF("/shirt_man.glb");
-  const { color, decalPosition, setDecalPosition } = useClothingStore();
+  const { color, decalImage, decalPosition, setDecalPosition, decalAspect } = useClothingStore();
+  const meshRef = useRef<THREE.Mesh | null>(null);
+  const texture = useTexture(decalImage || "/placeholder.jpg");
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -27,10 +27,11 @@ function ManShirtModel() {
     // Get click position and normal
     const worldPosition = event.point;
     const localPosition = meshRef.current.worldToLocal(worldPosition.clone());
+    const baseScale = 10;
 
     setDecalPosition({
-      scale: [10, 10, 10],
-      position: localPosition?.toArray(),
+      scale: [baseScale * decalAspect!, baseScale, baseScale],
+      position: localPosition.toArray(),
       rotation: [Math.PI / 2, 0, Math.PI],
     });
   };
@@ -75,7 +76,38 @@ const colorOptions = [
 
 // Main component
 export default function Home() {
-  const { color, setColor } = useClothingStore();
+  const {
+    color,
+    setColor,
+    localImage,
+    decalAspect,
+    setDecalImage,
+    decalPosition,
+    setLocalImage,
+    setDecalAspect,
+    setDecalPosition,
+  } = useClothingStore();
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+
+      img.onload = () => {
+        const aspect = img.width / img.height;
+        const objectUrl = URL.createObjectURL(file);
+        setLocalImage(objectUrl);
+        setDecalImage(objectUrl);
+        setDecalAspect(aspect);
+        setDecalPosition(null); // Reset existing decal position
+      };
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
@@ -106,6 +138,53 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-6 text-gray-900">
               Customize Your T-Shirt
             </h2>
+
+            {/* Add Image Upload Section */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-4 text-gray-800">
+                Upload Decal
+              </h3>
+              <label className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-accent transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <span className="text-gray-500">
+                  {localImage ? "Image Uploaded ✓" : "Click to Upload Image"}
+                </span>
+              </label>
+            </div>
+
+            {/* Add Scale Slider */}
+            {decalPosition && decalAspect && (
+              <div className="mb-8">
+                <h3 className="text-lg font-medium mb-4 text-gray-800">
+                  Decal Scale
+                </h3>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="20"
+                    step="1"
+                    value={decalPosition.scale[1]}
+                    onChange={(e) => {
+                      const newBase = Number(e.target.value);
+                      setDecalPosition({
+                        ...decalPosition,
+                        scale: [newBase * decalAspect, newBase, newBase],
+                      });
+                    }}
+                    className="flex-1"
+                  />
+                  <span className="text-gray-700 w-8">
+                    {decalPosition.scale[1]}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Color selection */}
             <div className="mb-8">
