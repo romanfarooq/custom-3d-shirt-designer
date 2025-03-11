@@ -29,6 +29,7 @@ function ManShirtModel() {
     const localPosition = meshRef.current.worldToLocal(worldPosition.clone());
 
     setDecalPosition({
+      scale: [10, 10, 10],
       position: localPosition?.toArray(),
       rotation: [Math.PI / 2, 0, Math.PI],
     });
@@ -46,9 +47,9 @@ function ManShirtModel() {
       <meshStandardMaterial color={color} />
       {decalPosition && (
         <Decal
+          scale={decalPosition.scale}
           position={decalPosition.position}
           rotation={decalPosition.rotation}
-          scale={10}
         >
           <meshPhongMaterial
             map={texture}
