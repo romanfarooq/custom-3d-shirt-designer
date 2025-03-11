@@ -22,27 +22,15 @@ function ManShirtModel() {
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
 
+    if (!meshRef.current) return;
+
     // Get click position and normal
     const worldPosition = event.point;
-    const localPosition = meshRef.current?.worldToLocal(worldPosition.clone());
-    const normal = event.face?.normal.clone();
-
-    // Convert normal to world space
-    const tempQuaternion = new THREE.Quaternion();
-    meshRef.current?.getWorldQuaternion(tempQuaternion);
-    normal?.applyQuaternion(tempQuaternion).normalize();
-
-    // Calculate rotation for decal orientation
-    const rotation = new THREE.Euler().setFromQuaternion(
-      new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 0, 1), // Decal's default forward direction
-        normal || new THREE.Vector3(0, 1, 0)
-      )
-    );
+    const localPosition = meshRef.current.worldToLocal(worldPosition.clone());
 
     setDecalPosition({
-      position: localPosition?.toArray() || [0, 0, 0],
-      rotation: [rotation.x, rotation.y, rotation.z],
+      position: localPosition?.toArray(),
+      rotation: [Math.PI / 2, 0, Math.PI],
     });
   };
 
@@ -50,24 +38,23 @@ function ManShirtModel() {
     <mesh
       ref={meshRef}
       onClick={handleClick}
-      material={materials.fabric}
+      material={materials.manShad}
       geometry={(nodes.man as THREE.Mesh).geometry}
-      position={[0, -0.8, 0]} // Adjusted center
-      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
+      position={[0, -0.8, 0]}
+      rotation={[Math.PI / 2, 0, 0]}
     >
       <meshStandardMaterial color={color} />
       {decalPosition && (
         <Decal
-          position={decalPosition.position as [number, number, number]}
-          rotation={decalPosition.rotation as [number, number, number]}
-          scale={[10, 10, 10]} // Adjust scale as needed
-          debug // Remove in production
+          position={decalPosition.position}
+          rotation={decalPosition.rotation}
+          scale={10}
         >
-          <meshStandardMaterial
+          <meshPhongMaterial
             map={texture}
             transparent
             polygonOffset
-            polygonOffsetFactor={-5} // Prevent z-fighting
+            polygonOffsetFactor={-1}
           />
         </Decal>
       )}
@@ -101,8 +88,10 @@ export default function Home() {
         {/* 3D Canvas - Left half on desktop */}
         <div className="w-full md:w-1/2 h-[50vh] md:h-auto bg-secondary rounded-lg overflow-hidden">
           <Canvas>
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} intensity={1} />
             <Suspense fallback={null}>
-              <Stage environment="city" shadows={false}>
+              <Stage environment="city" intensity={0.6}>
                 <ManShirtModel />
               </Stage>
             </Suspense>
@@ -181,3 +170,4 @@ export default function Home() {
 
 // Preload models
 useGLTF.preload("/shirt_man.glb");
+useTexture.preload("/placeholder.jpg");
