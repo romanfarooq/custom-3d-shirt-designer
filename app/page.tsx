@@ -1,9 +1,9 @@
 "use client";
 
 import * as THREE from "three";
+import { Suspense, useRef } from "react";
+import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { cn, isLightColor } from "@/lib/utils";
-import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
 import { useClothingStore } from "@/lib/store";
 import {
   Stage,
@@ -14,72 +14,64 @@ import {
 } from "@react-three/drei";
 
 function ManShirtModel() {
-  const { color } = useClothingStore();
-  const { nodes } = useGLTF("/shirt_man.glb");
   const texture = useTexture("/placeholder.jpg");
+  const meshRef = useRef<THREE.Mesh | null>(null);
+  const { nodes, materials } = useGLTF("/shirt_man.glb");
+  const { color, decalPosition, setDecalPosition } = useClothingStore();
+
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+
+    // Get click position and normal
+    const worldPosition = event.point;
+    const localPosition = meshRef.current?.worldToLocal(worldPosition.clone());
+    const normal = event.face?.normal.clone();
+
+    // Convert normal to world space
+    const tempQuaternion = new THREE.Quaternion();
+    meshRef.current?.getWorldQuaternion(tempQuaternion);
+    normal?.applyQuaternion(tempQuaternion).normalize();
+
+    // Calculate rotation for decal orientation
+    const rotation = new THREE.Euler().setFromQuaternion(
+      new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1), // Decal's default forward direction
+        normal || new THREE.Vector3(0, 1, 0)
+      )
+    );
+
+    setDecalPosition({
+      position: localPosition?.toArray() || [0, 0, 0],
+      rotation: [rotation.x, rotation.y, rotation.z],
+    });
+  };
 
   return (
     <mesh
+      ref={meshRef}
+      onClick={handleClick}
+      material={materials.fabric}
       geometry={(nodes.man as THREE.Mesh).geometry}
       position={[0, -0.8, 0]} // Adjusted center
       rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
     >
       <meshStandardMaterial color={color} />
-      <Decal
-        debug
-        position={[0, 0, 0]} // Centered on the front of the shirt
-        rotation={[0, 0, 0]} // Aligned with the shirt front
-        scale={1} // Original scale of the image
-      >
-        <meshBasicMaterial
-          map={texture}
-          transparent
-          polygonOffset
-          polygonOffsetFactor={-1} // The material should take precedence over the original
-        />
-      </Decal>
+      {decalPosition && (
+        <Decal
+          position={decalPosition.position as [number, number, number]}
+          rotation={decalPosition.rotation as [number, number, number]}
+          scale={[10, 10, 10]} // Adjust scale as needed
+          debug // Remove in production
+        >
+          <meshStandardMaterial
+            map={texture}
+            transparent
+            polygonOffset
+            polygonOffsetFactor={-5} // Prevent z-fighting
+          />
+        </Decal>
+      )}
     </mesh>
-  );
-}
-
-function WomanShirtModel() {
-  const { color } = useClothingStore();
-  const { nodes } = useGLTF("/shirt_woman.glb");
-
-  return (
-    <mesh
-      geometry={(nodes.woman as THREE.Mesh).geometry}
-      position={[0, -0.8, 0]} // Adjusted center
-      rotation={[Math.PI / 2, 0, 0]} // Adjusted orientation
-    >
-      <meshStandardMaterial color={color} />
-    </mesh>
-  );
-}
-
-function WomanShirtCanvas() {
-  return (
-    <Canvas>
-      <Suspense fallback={null}>
-        <Stage environment="city" shadows={false}>
-          <WomanShirtModel />
-        </Stage>
-      </Suspense>
-      <OrbitControls />
-    </Canvas>
-  );
-}
-
-function ManShirtCanvas() {
-  return (
-    <Canvas>
-      <Suspense fallback={null}>
-        <Stage environment="city" shadows={false}>
-          <ManShirtModel />
-        </Stage>
-      </Suspense>
-      <OrbitControls />
-    </Canvas>
   );
 }
 
@@ -95,7 +87,7 @@ const colorOptions = [
 
 // Main component
 export default function Home() {
-  const { color, gender, setColor, setGender } = useClothingStore();
+  const { color, setColor } = useClothingStore();
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
@@ -108,7 +100,14 @@ export default function Home() {
       <div className="flex flex-col md:flex-row w-full flex-grow">
         {/* 3D Canvas - Left half on desktop */}
         <div className="w-full md:w-1/2 h-[50vh] md:h-auto bg-secondary rounded-lg overflow-hidden">
-          {gender === "man" ? <ManShirtCanvas /> : <WomanShirtCanvas />}
+          <Canvas>
+            <Suspense fallback={null}>
+              <Stage environment="city" shadows={false}>
+                <ManShirtModel />
+              </Stage>
+            </Suspense>
+            <OrbitControls />
+          </Canvas>
         </div>
 
         {/* Customization Panel - Right half on desktop */}
@@ -117,37 +116,6 @@ export default function Home() {
             <h2 className="text-2xl font-semibold mb-6 text-gray-900">
               Customize Your T-Shirt
             </h2>
-
-            {/* Gender selection */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-4 text-gray-800">
-                Choose Shirt
-              </h3>
-              <div className="flex gap-4">
-                <button
-                  className={cn(
-                    "py-3 w-24 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
-                    gender === "man"
-                      ? "bg-accent  text-gray-800 shadow-md transform scale-105"
-                      : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                  )}
-                  onClick={() => setGender("man")}
-                >
-                  Man
-                </button>
-                <button
-                  className={cn(
-                    "py-3 w-24 rounded-lg cursor-pointer transition-all flex items-center justify-center font-medium shadow-sm",
-                    gender === "woman"
-                      ? "bg-accent text-gray-800 shadow-md transform scale-105"
-                      : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                  )}
-                  onClick={() => setGender("woman")}
-                >
-                  Woman
-                </button>
-              </div>
-            </div>
 
             {/* Color selection */}
             <div className="mb-8">
@@ -213,4 +181,3 @@ export default function Home() {
 
 // Preload models
 useGLTF.preload("/shirt_man.glb");
-useGLTF.preload("/shirt_woman.glb");
