@@ -10,11 +10,12 @@ import { ShirtModel } from "@/components/shirt-model";
 import { ColorPicker } from "@/components/color-picker";
 import { DecalUploader } from "@/components/decal-uploader";
 import { DecalControls } from "@/components/decal-controls";
+import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 
 export default function Home() {
   const { interaction } = useClothingStore();
   const isDragging = interaction.mode === "dragging";
-  const orbitControlsRef = useRef<OrbitControls | null>(null);
+  const orbitControlsRef = useRef<OrbitControlsType | null>(null);
 
   // Function to smoothly reset camera
   const resetCamera = () => {
@@ -73,17 +74,17 @@ export default function Home() {
               enableZoom={!isDragging}
               minPolarAngle={Math.PI / 6} // Limit upward rotation (30 degrees from top)
               maxPolarAngle={Math.PI / 2} // Limit downward rotation (90 degrees - horizontal view)
-              minDistance={20} // Prevent zooming too close/inside the shirt
+              minDistance={25} // Prevent zooming too close/inside the shirt
               maxDistance={100} // Prevent zooming too far out
             />
           </Canvas>
 
           {/* Reset Camera Button */}
-          <div className="absolute right-4 bottom-4 z-10 cursor-pointer">
+          <div className="absolute right-4 bottom-4 z-10">
             <Button
               variant="secondary"
               size="sm"
-              className="bg-white/80 shadow-md hover:bg-white"
+              className="cursor-pointer bg-white/80 shadow-md hover:bg-white"
               onClick={resetCamera}
             >
               Reset Camera
