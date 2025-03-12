@@ -1,17 +1,51 @@
 "use client";
 
-import { Suspense } from "react";
+import { gsap } from "gsap";
+import { Suspense, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Stage, OrbitControls } from "@react-three/drei";
+import { useClothingStore } from "@/lib/store";
+import { Button } from "@/components/ui/button";
 import { ShirtModel } from "@/components/shirt-model";
 import { ColorPicker } from "@/components/color-picker";
 import { DecalUploader } from "@/components/decal-uploader";
 import { DecalControls } from "@/components/decal-controls";
-import { useClothingStore } from "@/lib/store";
 
 export default function Home() {
   const { interaction } = useClothingStore();
   const isDragging = interaction.mode === "dragging";
+  const orbitControlsRef = useRef<OrbitControls | null>(null);
+
+  // Function to smoothly reset camera
+  const resetCamera = () => {
+    if (orbitControlsRef.current) {
+      // Get the current camera
+      const camera = orbitControlsRef.current.object;
+      const controls = orbitControlsRef.current;
+
+      // Reset the target to the center of the shirt
+      gsap.to(controls.target, {
+        x: 0,
+        y: 0,
+        z: 0,
+        duration: 1.5,
+        ease: "power2.inOut",
+      });
+
+      // Animate camera position to the reset position
+      gsap.to(camera.position, {
+        x: 0,
+        y: 0,
+        z: 53,
+        duration: 1.5,
+        ease: "power2.inOut",
+        onUpdate: () => {
+          // Update controls on each animation frame
+          controls.update();
+        },
+      });
+    }
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
@@ -33,11 +67,28 @@ export default function Home() {
               </Stage>
             </Suspense>
             <OrbitControls
+              ref={orbitControlsRef}
               enablePan={!isDragging}
               enableRotate={!isDragging}
               enableZoom={!isDragging}
+              minPolarAngle={Math.PI / 6} // Limit upward rotation (30 degrees from top)
+              maxPolarAngle={Math.PI / 2} // Limit downward rotation (90 degrees - horizontal view)
+              minDistance={20} // Prevent zooming too close/inside the shirt
+              maxDistance={100} // Prevent zooming too far out
             />
           </Canvas>
+
+          {/* Reset Camera Button */}
+          <div className=" bottom-4 right-4 z-10 absolute cursor-pointer">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-white/80 hover:bg-white shadow-md"
+              onClick={resetCamera}
+            >
+              Reset Camera
+            </Button>
+          </div>
         </div>
 
         {/* Customization Panel - Right half on desktop */}
