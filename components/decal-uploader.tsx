@@ -3,7 +3,7 @@
 import { useClothingStore } from "@/lib/store";
 
 export function DecalUploader() {
-  const { decal, setDecalImage, startPlacingDecal } = useClothingStore();
+  const { decal, setDecalImage, isPlacingDecal } = useClothingStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,13 +39,10 @@ export function DecalUploader() {
           </span>
         </label>
 
-        {decal && decal.position && (
-          <button
-            onClick={startPlacingDecal}
-            className="text-sm text-accent hover:underline"
-          >
-            Reposition decal
-          </button>
+        {isPlacingDecal && (
+          <p className="text-sm text-gray-500">
+            Click on the shirt surface to place image
+          </p>
         )}
       </div>
     </div>

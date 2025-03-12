@@ -10,7 +10,7 @@ import { DecalControls } from "@/components/decal-controls";
 import { useClothingStore } from "@/lib/store";
 
 export default function Home() {
-  const { isPlacingDecal } = useClothingStore();
+  const { isDragging } = useClothingStore();
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
@@ -32,21 +32,11 @@ export default function Home() {
               </Stage>
             </Suspense>
             <OrbitControls
-              enablePan={!isPlacingDecal}
-              enableRotate={!isPlacingDecal}
-              enableZoom={!isPlacingDecal}
+              enablePan={!isDragging}
+              enableRotate={!isDragging}
+              enableZoom={!isDragging}
             />
           </Canvas>
-
-          {isPlacingDecal && (
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
-              <div className="bg-white p-4 rounded-lg shadow-lg">
-                <p className="text-gray-800 font-medium">
-                  Click on the shirt to place your decal
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Customization Panel - Right half on desktop */}
