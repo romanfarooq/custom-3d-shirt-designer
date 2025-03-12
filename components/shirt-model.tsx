@@ -108,7 +108,7 @@ export function ShirtModel() {
       const localPosition = meshRef.current.worldToLocal(hitPoint);
 
       // Update the decal position
-      updateDecalPosition(localPosition.toArray() as [number, number, number]);
+      updateDecalPosition(localPosition.toArray());
     }
   };
 
