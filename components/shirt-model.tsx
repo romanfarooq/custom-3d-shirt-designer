@@ -1,18 +1,22 @@
 "use client";
 
-import type * as THREE from "three";
-import { useRef } from "react";
-import { ThreeEvent } from "@react-three/fiber";
-import { useClothingStore } from "@/lib/store"; 
-import { Decal, useGLTF, useTexture } from "@react-three/drei";
+import { useEffect, useRef } from "react";
+import { type Mesh, TextureLoader } from "three";
+import { type ThreeEvent } from "@react-three/fiber";
+import { useClothingStore } from "@/lib/store";
+import { Decal, useGLTF } from "@react-three/drei";
 
 export function ShirtModel() {
+  const meshRef = useRef<Mesh | null>(null);
   const { nodes, materials } = useGLTF("/shirt_man.glb");
-  const { color, decal, isPlacingDecal, placeDecal } = useClothingStore();
-  const meshRef = useRef<THREE.Mesh | null>(null);
+  const { color, decal, isPlacingDecal, placeDecal, setTexture } = useClothingStore();
 
-  // Load the texture from the decal image or use a transparent texture if no decal
-  const texture = useTexture(decal?.image || "/transparent.png");
+  useEffect(() => {
+    if (decal?.image) {
+      const loader = new TextureLoader();
+      loader.load(decal.image, setTexture);
+    }
+  }, [decal?.image]);
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -32,7 +36,7 @@ export function ShirtModel() {
       ref={meshRef}
       onClick={handleClick}
       material={materials.manShad}
-      geometry={(nodes.man as THREE.Mesh).geometry}
+      geometry={(nodes.man as Mesh).geometry}
       position={[0, -0.8, 0]}
       rotation={[Math.PI / 2, 0, 0]}
     >
@@ -45,7 +49,7 @@ export function ShirtModel() {
           rotation={decal.rotation}
         >
           <meshPhongMaterial
-            map={texture}
+            map={decal.texture}
             transparent
             polygonOffset
             polygonOffsetFactor={-1}

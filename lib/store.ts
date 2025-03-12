@@ -1,10 +1,12 @@
 import { create } from "zustand";
+import type { Texture } from "three";
 
 // Combined interface for decal properties
 interface Decal {
   image: string;
   aspect: number;
   scale: number;
+  texture: Texture | null;
   position: [number, number, number] | null;
   rotation: [number, number, number];
 }
@@ -22,6 +24,7 @@ interface ClothingState {
   setDecalScale: (scale: number) => void;
   resetDecal: () => void;
   startPlacingDecal: () => void;
+  setTexture: (texture: Texture) => void;
 }
 
 export const useClothingStore = create<ClothingState>((set) => ({
@@ -39,6 +42,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
         image,
         aspect,
         scale: 10, // Default scale
+        texture: null,
         position: null,
         rotation: [Math.PI / 2, 0, Math.PI],
       },
@@ -75,5 +79,15 @@ export const useClothingStore = create<ClothingState>((set) => ({
   startPlacingDecal: () =>
     set((state) => ({
       isPlacingDecal: state.decal !== null,
+    })),
+
+  setTexture: (texture) =>
+    set((state) => ({
+      decal: state.decal
+        ? {
+            ...state.decal,
+            texture,
+          }
+        : null,
     })),
 }));
