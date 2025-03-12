@@ -3,7 +3,8 @@
 import { useClothingStore } from "@/lib/store";
 
 export function DecalControls() {
-  const { decal, setDecalScale, isPlacingDecal } = useClothingStore();
+  const { decal, setDecalScale, interaction } = useClothingStore();
+  const isPlacingDecal = interaction.mode === "placing";
 
   if (!decal || !decal.position) return null;
 

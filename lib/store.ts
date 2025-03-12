@@ -1,6 +1,5 @@
 import { create } from "zustand";
-import type { Texture } from "three";
-import type { Vector3 } from "three";
+import type { Texture, Vector3 } from "three";
 
 // Combined interface for decal properties
 interface Decal {
@@ -12,13 +11,19 @@ interface Decal {
   rotation: [number, number, number];
 }
 
+// New interface for interaction state
+type InteractionMode = "idle" | "placing" | "dragging";
+
+interface InteractionState {
+  mode: InteractionMode;
+  dragOffset: Vector3 | null;
+}
+
 interface ClothingState {
   // State properties
   color: string;
   decal: Decal | null;
-  isPlacingDecal: boolean;
-  isDragging: boolean;
-  dragOffset: Vector3 | null;
+  interaction: InteractionState;
 
   // Actions
   setColor: (color: string) => void;
@@ -28,17 +33,17 @@ interface ClothingState {
   setDecalScale: (scale: number) => void;
   resetDecal: () => void;
   setTexture: (texture: Texture) => void;
-  setIsDragging: (isDragging: boolean) => void;
-  setDragOffset: (offset: Vector3 | null) => void;
+  setInteractionMode: (mode: InteractionMode, offset?: Vector3 | null) => void;
 }
 
 export const useClothingStore = create<ClothingState>((set) => ({
   // Initial state
   color: "#F3F4F6", // Default color (White)
   decal: null,
-  isPlacingDecal: false,
-  isDragging: false,
-  dragOffset: null,
+  interaction: {
+    mode: "idle",
+    dragOffset: null,
+  },
 
   // Actions to update state
   setColor: (color) => set({ color }),
@@ -53,7 +58,10 @@ export const useClothingStore = create<ClothingState>((set) => ({
         position: null,
         rotation: [Math.PI / 2, 0, 0],
       },
-      isPlacingDecal: true,
+      interaction: {
+        mode: "placing",
+        dragOffset: null,
+      },
     }),
 
   placeDecal: (position) =>
@@ -64,7 +72,10 @@ export const useClothingStore = create<ClothingState>((set) => ({
             position,
           }
         : null,
-      isPlacingDecal: false,
+      interaction: {
+        mode: "idle",
+        dragOffset: null,
+      },
     })),
 
   updateDecalPosition: (position) =>
@@ -90,9 +101,10 @@ export const useClothingStore = create<ClothingState>((set) => ({
   resetDecal: () =>
     set({
       decal: null,
-      isPlacingDecal: false,
-      isDragging: false,
-      dragOffset: null,
+      interaction: {
+        mode: "idle",
+        dragOffset: null,
+      },
     }),
 
   setTexture: (texture) =>
@@ -105,7 +117,11 @@ export const useClothingStore = create<ClothingState>((set) => ({
         : null,
     })),
 
-  setIsDragging: (isDragging) => set({ isDragging }),
-
-  setDragOffset: (dragOffset) => set({ dragOffset }),
+  setInteractionMode: (mode, offset = null) =>
+    set(() => ({
+      interaction: {
+        mode,
+        dragOffset: offset,
+      },
+    })),
 }));

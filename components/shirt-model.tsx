@@ -19,20 +19,22 @@ export function ShirtModel() {
   const {
     color,
     decal,
-    isPlacingDecal,
-    isDragging,
-    dragOffset,
+    interaction,
     placeDecal,
     setTexture,
     updateDecalPosition,
-    setIsDragging,
-    setDragOffset,
+    setInteractionMode,
   } = useClothingStore();
 
   const { camera, pointer, gl } = useThree();
 
   // Custom raycaster for dragging
   const dragRaycaster = useRef(new Raycaster());
+
+  // Derived state
+  const isPlacingDecal = interaction.mode === "placing";
+  const isDragging = interaction.mode === "dragging";
+  const dragOffset = interaction.dragOffset;
 
   // Use useTexture for the decal if available
   useEffect(() => {
@@ -67,15 +69,13 @@ export function ShirtModel() {
 
     if (!meshRef.current || !decal?.position) return;
 
-    setIsDragging(true);
-
     // Calculate the offset between the pointer hit point and the decal position
     // This ensures the decal doesn't jump to the pointer position
     const worldDecalPos = new Vector3(...decal.position);
     meshRef.current.localToWorld(worldDecalPos);
 
     const offset = worldDecalPos.clone().sub(event.point);
-    setDragOffset(offset);
+    setInteractionMode("dragging", offset);
 
     // Add global event listeners to handle dragging outside the decal
     window.addEventListener("pointermove", handleGlobalPointerMove);
@@ -114,8 +114,7 @@ export function ShirtModel() {
 
   // Global pointer up handler
   const handleGlobalPointerUp = () => {
-    setIsDragging(false);
-    setDragOffset(null);
+    setInteractionMode("idle");
 
     // Remove global event listeners
     window.removeEventListener("pointermove", handleGlobalPointerMove);

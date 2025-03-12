@@ -10,7 +10,8 @@ import { DecalControls } from "@/components/decal-controls";
 import { useClothingStore } from "@/lib/store";
 
 export default function Home() {
-  const { isDragging } = useClothingStore();
+  const { interaction } = useClothingStore();
+  const isDragging = interaction.mode === "dragging";
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">

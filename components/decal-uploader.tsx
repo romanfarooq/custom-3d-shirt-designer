@@ -3,7 +3,8 @@
 import { useClothingStore } from "@/lib/store";
 
 export function DecalUploader() {
-  const { decal, setDecalImage, isPlacingDecal } = useClothingStore();
+  const { decal, setDecalImage, interaction } = useClothingStore();
+  const isPlacingDecal = interaction.mode === "placing";
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
