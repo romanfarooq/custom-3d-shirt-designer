@@ -10,7 +10,7 @@ export function DecalControls() {
 
   return (
     <div className="mb-8">
-      <h3 className="text-lg font-medium mb-4 text-gray-800">Decal Scale</h3>
+      <h3 className="mb-4 text-lg font-medium text-gray-800">Decal Scale</h3>
       <div className="flex items-center gap-4">
         <input
           type="range"
@@ -24,7 +24,7 @@ export function DecalControls() {
           className="flex-1"
           disabled={isPlacingDecal}
         />
-        <span className="text-gray-700 w-8">{decal.scale}</span>
+        <span className="w-8 text-gray-700">{decal.scale}</span>
       </div>
     </div>
   );

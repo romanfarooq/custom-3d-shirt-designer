@@ -18,14 +18,14 @@ export function ColorPicker() {
 
   return (
     <div className="mb-8">
-      <h3 className="text-lg font-medium mb-4 text-gray-800">Choose Color</h3>
-      <div className="flex gap-3 flex-wrap">
+      <h3 className="mb-4 text-lg font-medium text-gray-800">Choose Color</h3>
+      <div className="flex flex-wrap gap-3">
         {colorOptions.map((colorOption) => (
           <button
             key={colorOption.value}
             className={cn(
-              "w-10 h-10 rounded-full border-2 cursor-pointer transition-all hover:scale-110",
-              color === colorOption.value ? "border-accent" : "border-gray-200"
+              "h-10 w-10 cursor-pointer rounded-full border-2 transition-all hover:scale-110",
+              color === colorOption.value ? "border-accent" : "border-gray-200",
             )}
             style={{ backgroundColor: colorOption.value }}
             onClick={() => setColor(colorOption.value)}
@@ -39,14 +39,14 @@ export function ColorPicker() {
             type="color"
             value={color}
             onChange={(e) => setColor(e.target.value)}
-            className="w-10 h-10 cursor-pointer rounded-sm overflow-hidden absolute inset-0 opacity-0"
+            className="absolute inset-0 h-10 w-10 cursor-pointer overflow-hidden rounded-sm opacity-0"
           />
           <div
             className={cn(
-              "w-10 h-10 rounded-sm border-2 transition-all hover:scale-110 flex items-center justify-center",
+              "flex h-10 w-10 items-center justify-center rounded-sm border-2 transition-all hover:scale-110",
               colorOptions.some((opt) => opt.value === color)
                 ? "border-gray-200"
-                : "border-accent"
+                : "border-accent",
             )}
             style={{ backgroundColor: color }}
             title="Custom Color"

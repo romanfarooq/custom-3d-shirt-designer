@@ -26,9 +26,9 @@ export function DecalUploader() {
 
   return (
     <div className="mb-8">
-      <h3 className="text-lg font-medium mb-4 text-gray-800">Upload Decal</h3>
+      <h3 className="mb-4 text-lg font-medium text-gray-800">Upload Decal</h3>
       <div className="flex flex-col gap-3">
-        <label className="flex items-center justify-center w-full h-12 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-accent transition-colors">
+        <label className="hover:border-accent flex h-12 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors">
           <input
             type="file"
             accept="image/*"

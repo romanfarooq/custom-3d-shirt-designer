@@ -49,15 +49,15 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
-      <header className="w-full py-6 px-8 border-b border-gray-100">
-        <h1 className="text-3xl font-bold text-center text-gray-900">
+      <header className="w-full border-b border-gray-100 px-8 py-6">
+        <h1 className="text-center text-3xl font-bold text-gray-900">
           FASHION <span className="text-destructive">STUDIO</span>
         </h1>
       </header>
 
-      <div className="flex flex-col md:flex-row w-full flex-grow">
+      <div className="flex w-full flex-grow flex-col md:flex-row">
         {/* 3D Canvas - Left half on desktop */}
-        <div className="w-full md:w-1/2 h-[50vh] md:h-auto bg-secondary rounded-lg overflow-hidden relative">
+        <div className="bg-secondary relative h-[50vh] w-full overflow-hidden rounded-lg md:h-auto md:w-1/2">
           <Canvas>
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={1} />
@@ -79,11 +79,11 @@ export default function Home() {
           </Canvas>
 
           {/* Reset Camera Button */}
-          <div className=" bottom-4 right-4 z-10 absolute cursor-pointer">
+          <div className="absolute right-4 bottom-4 z-10 cursor-pointer">
             <Button
               variant="secondary"
               size="sm"
-              className="bg-white/80 hover:bg-white shadow-md"
+              className="bg-white/80 shadow-md hover:bg-white"
               onClick={resetCamera}
             >
               Reset Camera
@@ -92,9 +92,9 @@ export default function Home() {
         </div>
 
         {/* Customization Panel - Right half on desktop */}
-        <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-          <div className="max-w-md mx-auto">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+        <div className="flex w-full flex-col justify-center p-8 md:w-1/2">
+          <div className="mx-auto max-w-md">
+            <h2 className="mb-6 text-2xl font-semibold text-gray-900">
               Customize Your T-Shirt
             </h2>
 

@@ -92,7 +92,7 @@ export function ShirtModel() {
     // Check for intersections with the shirt mesh
     const intersects = dragRaycaster.current.intersectObject(
       meshRef.current,
-      false
+      false,
     );
 
     if (intersects.length > 0) {
@@ -126,7 +126,7 @@ export function ShirtModel() {
     // Check for intersections with the shirt mesh
     const intersects = dragRaycaster.current.intersectObject(
       meshRef.current,
-      false
+      false,
     );
 
     if (intersects.length > 0) {
