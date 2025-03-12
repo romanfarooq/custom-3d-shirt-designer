@@ -4,13 +4,7 @@ import { useEffect, useRef } from "react";
 import { useClothingStore } from "@/lib/store";
 import { Decal, useGLTF } from "@react-three/drei";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
-import {
-  type Mesh,
-  type Vector2,
-  Vector3,
-  Raycaster,
-  TextureLoader,
-} from "three";
+import { type Mesh, Vector2, Vector3, Raycaster, TextureLoader } from "three";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -92,7 +86,8 @@ export function ShirtModel() {
     const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     // Update raycaster with the current pointer position
-    dragRaycaster.current.setFromCamera({ x, y } as Vector2, camera);
+    const pointerPos = new Vector2(x, y);
+    dragRaycaster.current.setFromCamera(pointerPos, camera);
 
     // Check for intersections with the shirt mesh
     const intersects = dragRaycaster.current.intersectObject(
