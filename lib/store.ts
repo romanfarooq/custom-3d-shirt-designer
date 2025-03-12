@@ -1,39 +1,79 @@
 import { create } from "zustand";
 
-interface DecalPosition {
-  scale: [number, number, number];
-  position: [number, number, number];
+// Combined interface for decal properties
+interface Decal {
+  image: string;
+  aspect: number;
+  scale: number;
+  position: [number, number, number] | null;
   rotation: [number, number, number];
 }
 
 interface ClothingState {
   // State properties
   color: string;
-  decalImage: string | null;
-  localImage: string | null;
-  decalAspect: number | null;
-  decalPosition: DecalPosition | null;
+  decal: Decal | null;
+  isPlacingDecal: boolean;
 
   // Actions
   setColor: (color: string) => void;
-  setDecalImage: (url: string) => void;
-  setDecalAspect: (aspect: number) => void;
-  setLocalImage: (url: string | null) => void;
-  setDecalPosition: (decalPosition: DecalPosition | null) => void;
+  setDecalImage: (url: string, aspect: number) => void;
+  placeDecal: (position: [number, number, number] | null) => void;
+  setDecalScale: (scale: number) => void;
+  resetDecal: () => void;
+  startPlacingDecal: () => void;
 }
 
 export const useClothingStore = create<ClothingState>((set) => ({
   // Initial state
   color: "#F3F4F6", // Default color (White)
-  decalImage: null,
-  localImage: null,
-  decalAspect: null,
-  decalPosition: null,
+  decal: null,
+  isPlacingDecal: false,
 
   // Actions to update state
-  setColor: (color: string) => set({ color }),
-  setDecalImage: (decalImage) => set({ decalImage }),
-  setLocalImage: (localImage) => set({ localImage }),
-  setDecalAspect: (decalAspect) => set({ decalAspect }),
-  setDecalPosition: (decalPosition: DecalPosition | null) => set({ decalPosition }),
+  setColor: (color) => set({ color }),
+
+  setDecalImage: (image, aspect) =>
+    set({
+      decal: {
+        image,
+        aspect,
+        scale: 10, // Default scale
+        position: null,
+        rotation: [Math.PI / 2, 0, Math.PI],
+      },
+      isPlacingDecal: true,
+    }),
+
+  placeDecal: (position) =>
+    set((state) => ({
+      decal: state.decal
+        ? {
+            ...state.decal,
+            position,
+          }
+        : null,
+      isPlacingDecal: false,
+    })),
+
+  setDecalScale: (scale) =>
+    set((state) => ({
+      decal: state.decal
+        ? {
+            ...state.decal,
+            scale,
+          }
+        : null,
+    })),
+
+  resetDecal: () =>
+    set({
+      decal: null,
+      isPlacingDecal: false,
+    }),
+
+  startPlacingDecal: () =>
+    set((state) => ({
+      isPlacingDecal: state.decal !== null,
+    })),
 }));
