@@ -1,15 +1,12 @@
 "use client";
 
-import { useClothingStore } from "@/lib/store";
 import { Trash2 } from "lucide-react";
+import { useClothingStore } from "@/lib/store";
 
 export function DecalControls() {
-  const { decals, interaction, setDecalScale, removeDecal, setActiveDecal } = useClothingStore();
+  const { decals, interaction, removeDecal, setActiveDecal } = useClothingStore();
   const activeDecalId = interaction.activeDecalId;
   const isPlacingDecal = interaction.mode === "placing";
-
-  // Find the active decal
-  const activeDecal = decals.find((d) => d.id === activeDecalId);
 
   if (decals.length === 0) return null;
 
@@ -45,27 +42,16 @@ export function DecalControls() {
         ))}
       </div>
 
-      {/* Scale Controls - Only show if a decal is selected and not in placing mode */}
-      {activeDecal && !isPlacingDecal && (
-        <div>
-          <h4 className="mb-2 text-sm font-medium text-gray-700">
-            Decal Scale
-          </h4>
-          <div className="flex items-center gap-4">
-            <input
-              type="range"
-              min="1"
-              max="20"
-              step="1"
-              value={activeDecal.scale}
-              onChange={(e) => {
-                setDecalScale(Number(e.target.value));
-              }}
-              className="flex-1"
-            />
-            <span className="w-8 text-gray-700">{activeDecal.scale}</span>
-          </div>
-        </div>
+      {isPlacingDecal && (
+        <p className="text-sm text-gray-500">
+          Click on the shirt surface to place image
+        </p>
+      )}
+
+      {activeDecalId && !isPlacingDecal && (
+        <p className="text-sm text-gray-500">
+          Drag the handles to resize or rotate the image
+        </p>
       )}
     </div>
   );
