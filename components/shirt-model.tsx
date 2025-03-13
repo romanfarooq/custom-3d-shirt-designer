@@ -34,14 +34,11 @@ export function ShirtModel() {
   const isResizing = interaction.mode === "resizing";
   const isRotating = interaction.mode === "rotating";
   const isPlacingDecal = interaction.mode === "placing";
-  const activeDecalId = interaction.activeDecalId;
   const resizeHandle = interaction.resizeHandle;
   const initialScale = interaction.initialScale;
-  const initialRotation = interaction.initialRotation;
+  const activeDecalId = interaction.activeDecalId;
   const initialPointer = interaction.initialPointer;
-
-  // Find the active decal
-  const activeDecal = decals.find((d) => d.id === activeDecalId);
+  const initialRotation = interaction.initialRotation;
 
   // Load textures for all decals
   useEffect(() => {
@@ -284,7 +281,7 @@ export function ShirtModel() {
           .map((decal) => (
             <Html
               key={`controls-${decal.id}`}
-              position={decal.position}
+              position={decal.position as [number, number, number]}
               rotation={decal.rotation}
               transform
             >
