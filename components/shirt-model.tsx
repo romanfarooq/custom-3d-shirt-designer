@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useClothingStore } from "@/lib/store";
 import { Decal, useGLTF } from "@react-three/drei";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
-import { type Mesh, Vector2, Vector3, Raycaster, TextureLoader } from "three";
+import { type Mesh, Vector3, Raycaster, TextureLoader } from "three";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -20,7 +20,7 @@ export function ShirtModel() {
     setInteractionMode,
   } = useClothingStore();
 
-  const { camera, pointer, gl } = useThree();
+  const { camera, pointer } = useThree();
 
   // Custom raycaster for dragging
   const dragRaycaster = useRef(new Raycaster());
@@ -70,50 +70,10 @@ export function ShirtModel() {
 
     const offset = worldDecalPos.clone().sub(event.point);
     setInteractionMode("dragging", offset);
-
-    // Add global event listeners to handle dragging outside the decal
-    window.addEventListener("pointermove", handleGlobalPointerMove);
-    window.addEventListener("pointerup", handleGlobalPointerUp);
   };
-
-  // Global pointer move handler (for when cursor moves fast)
-  const handleGlobalPointerMove = (event: PointerEvent) => {
-    if (!isDragging || !meshRef.current || !dragOffset) return;
-
-    // Convert pointer position to normalized device coordinates
-    const rect = gl.domElement.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    // Update raycaster with the current pointer position
-    const pointerPos = new Vector2(x, y);
-    dragRaycaster.current.setFromCamera(pointerPos, camera);
-
-    // Check for intersections with the shirt mesh
-    const intersects = dragRaycaster.current.intersectObject(
-      meshRef.current,
-      false,
-    );
-
-    if (intersects.length > 0) {
-      // Get the intersection point and add the offset
-      const hitPoint = intersects[0].point.clone().add(dragOffset);
-
-      // Convert to local space of the shirt
-      const localPosition = meshRef.current.worldToLocal(hitPoint);
-
-      // Update the decal position
-      updateDecalPosition(localPosition.toArray());
-    }
-  };
-
   // Global pointer up handler
-  const handleGlobalPointerUp = () => {
+  const handlePointerUp = () => {
     setInteractionMode("idle");
-
-    // Remove global event listeners
-    window.removeEventListener("pointermove", handleGlobalPointerMove);
-    window.removeEventListener("pointerup", handleGlobalPointerUp);
   };
 
   // Update decal position during dragging (for smooth updates)
@@ -158,6 +118,7 @@ export function ShirtModel() {
           scale={[decal.scale * decal.aspect, decal.scale, decal.scale]}
           position={decal.position}
           rotation={decal.rotation}
+          onPointerUp={handlePointerUp}
           onPointerDown={handlePointerDown}
         >
           {/* Use MeshBasicMaterial instead of MeshPhongMaterial to avoid lighting effects */}
