@@ -8,14 +8,14 @@ import { type Mesh, Vector3, Raycaster, TextureLoader } from "three";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
-  const decalRef = useRef<Mesh | null>(null);
   const { nodes, materials } = useGLTF("/shirt_man.glb");
   const {
     color,
-    decal,
+    decals,
     interaction,
     placeDecal,
     setTexture,
+    setActiveDecal,
     updateDecalPosition,
     setInteractionMode,
   } = useClothingStore();
@@ -26,28 +26,31 @@ export function ShirtModel() {
   const dragRaycaster = useRef(new Raycaster());
 
   // Derived state
-  const isPlacingDecal = interaction.mode === "placing";
-  const isDragging = interaction.mode === "dragging";
   const dragOffset = interaction.dragOffset;
+  const activeDecalId = interaction.activeDecalId;
+  const isDragging = interaction.mode === "dragging";
+  const isPlacingDecal = interaction.mode === "placing";
 
-  // Use useTexture for the decal if available
+  // Load textures for all decals
   useEffect(() => {
-    if (decal?.image) {
-      // Load texture using TextureLoader
-      const loader = new TextureLoader();
-      loader.load(decal.image, (texture) => {
-        // Ensure texture settings are optimal
-        texture.needsUpdate = true;
-        texture.flipY = false; // Try this if texture appears inverted
-        setTexture(texture);
-      });
-    }
-  }, [decal?.image, setTexture]);
+    decals.forEach((decal) => {
+      if (decal.image && !decal.texture) {
+        // Load texture using TextureLoader
+        const loader = new TextureLoader();
+        loader.load(decal.image, (texture) => {
+          // Ensure texture settings are optimal
+          texture.needsUpdate = true;
+          texture.flipY = false; // Try this if texture appears inverted
+          setTexture(decal.id, texture);
+        });
+      }
+    });
+  }, [decals, setTexture]);
 
-  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+  const handleClickMesh = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
 
-    if (!meshRef.current || !isPlacingDecal || !decal) return;
+    if (!meshRef.current || !isPlacingDecal || !activeDecalId) return;
 
     // Get click position
     const worldPosition = event.point;
@@ -57,20 +60,30 @@ export function ShirtModel() {
     placeDecal(localPosition.toArray());
   };
 
-  // Handle pointer down on the decal
-  const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
+  // Handle pointer down on a decal
+  const handlePointerDown = (
+    event: ThreeEvent<PointerEvent>,
+    decalId: string,
+  ) => {
     event.stopPropagation();
 
-    if (!meshRef.current || !decal?.position) return;
+    if (!meshRef.current) return;
+
+    // Set this decal as active
+    setActiveDecal(decalId);
+
+    // Find the decal
+    const decal = decals.find((d) => d.id === decalId);
+    if (!decal?.position) return;
 
     // Calculate the offset between the pointer hit point and the decal position
-    // This ensures the decal doesn't jump to the pointer position
     const worldDecalPos = new Vector3(...decal.position);
     meshRef.current.localToWorld(worldDecalPos);
 
     const offset = worldDecalPos.clone().sub(event.point);
     setInteractionMode("dragging", offset);
   };
+
   // Global pointer up handler
   const handlePointerUp = () => {
     setInteractionMode("idle");
@@ -78,7 +91,8 @@ export function ShirtModel() {
 
   // Update decal position during dragging (for smooth updates)
   useFrame(() => {
-    if (!isDragging || !meshRef.current || !dragOffset) return;
+    if (!isDragging || !meshRef.current || !dragOffset || !activeDecalId)
+      return;
 
     // Cast a ray from the camera through the mouse position
     dragRaycaster.current.setFromCamera(pointer, camera);
@@ -104,7 +118,7 @@ export function ShirtModel() {
   return (
     <mesh
       ref={meshRef}
-      onClick={handleClick}
+      onClick={handleClickMesh}
       material={materials.manShad}
       geometry={(nodes.man as Mesh).geometry}
       position={[0, -0.8, 0]}
@@ -112,24 +126,27 @@ export function ShirtModel() {
     >
       <meshStandardMaterial color={color} />
 
-      {decal && decal.position && decal.texture && (
-        <Decal
-          ref={decalRef}
-          scale={[decal.scale * decal.aspect, decal.scale, decal.scale]}
-          position={decal.position}
-          rotation={decal.rotation}
-          onPointerUp={handlePointerUp}
-          onPointerDown={handlePointerDown}
-        >
-          {/* Use MeshBasicMaterial instead of MeshPhongMaterial to avoid lighting effects */}
-          <meshBasicMaterial
-            map={decal.texture}
-            transparent
-            polygonOffset
-            polygonOffsetFactor={-1}
-            opacity={isDragging ? 0.8 : 1}
-          />
-        </Decal>
+      {decals.map(
+        (decal) =>
+          decal.position &&
+          decal.texture && (
+            <Decal
+              key={decal.id}
+              scale={[decal.scale * decal.aspect, decal.scale, decal.scale]}
+              position={decal.position}
+              rotation={decal.rotation}
+              onPointerUp={handlePointerUp}
+              onPointerDown={(e) => handlePointerDown(e, decal.id)}
+            >
+              <meshBasicMaterial
+                map={decal.texture}
+                transparent
+                polygonOffset
+                polygonOffsetFactor={-1}
+                opacity={isDragging && activeDecalId === decal.id ? 0.8 : 1}
+              />
+            </Decal>
+          ),
       )}
     </mesh>
   );

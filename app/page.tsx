@@ -14,8 +14,8 @@ import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 
 export default function Home() {
   const { interaction } = useClothingStore();
-  const isDragging = interaction.mode === "dragging";
   const orbitControlsRef = useRef<OrbitControlsType | null>(null);
+  const isDragging = interaction.mode === "dragging";
 
   // Function to smoothly reset camera
   const resetCamera = () => {

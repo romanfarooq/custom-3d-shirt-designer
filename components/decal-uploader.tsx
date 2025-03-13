@@ -3,7 +3,7 @@
 import { useClothingStore } from "@/lib/store";
 
 export function DecalUploader() {
-  const { decal, setDecalImage, interaction } = useClothingStore();
+  const { interaction, addDecal } = useClothingStore();
   const isPlacingDecal = interaction.mode === "placing";
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,7 +18,7 @@ export function DecalUploader() {
       img.onload = () => {
         const aspect = img.width / img.height;
         const objectUrl = URL.createObjectURL(file);
-        setDecalImage(objectUrl, aspect);
+        addDecal(objectUrl, aspect);
       };
     };
     reader.readAsDataURL(file);
@@ -35,9 +35,7 @@ export function DecalUploader() {
             onChange={handleImageUpload}
             className="hidden"
           />
-          <span className="text-gray-500">
-            {decal ? "Image Uploaded ✓" : "Click to Upload Image"}
-          </span>
+          <span className="text-gray-500">Click to Upload Image</span>
         </label>
 
         {isPlacingDecal && (
