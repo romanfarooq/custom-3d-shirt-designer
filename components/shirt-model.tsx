@@ -16,11 +16,11 @@ export function ShirtModel() {
     interaction,
     placeDecal,
     setTexture,
-    updateDecalPosition,
+    setActiveDecal,
     updateDecalScale,
+    updateDecalPosition,
     updateDecalRotation,
     setInteractionMode,
-    setActiveDecal,
   } = useClothingStore();
 
   const { camera, pointer, size } = useThree();
@@ -257,9 +257,9 @@ export function ShirtModel() {
           decal.texture && (
             <Decal
               key={decal.id}
-              scale={[decal.scaleX, decal.scaleY, 1]}
               position={decal.position}
               rotation={decal.rotation}
+              scale={[decal.scaleX, decal.scaleY, decal.scaleZ]}
               onPointerUp={handlePointerUp}
               onPointerDown={(e) => handlePointerDown(e, decal.id)}
             >
@@ -270,98 +270,100 @@ export function ShirtModel() {
                 polygonOffsetFactor={-1}
                 opacity={isDragging && activeDecalId === decal.id ? 0.8 : 1}
               />
+
+              {/* Render control points separately for the active decal */}
+              {activeDecalId === decal.id && (
+                <Html
+                  transform
+                  position={decal.position}
+                  rotation={decal.rotation}
+                >
+                  <div
+                    className="pointer-events-none relative -translate-x-1/2 -translate-y-1/2"
+                    style={{
+                      width: `${decal.scaleX * 2}px`,
+                      height: `${decal.scaleY * 2}px`,
+                    }}
+                  >
+                    {/* Resize handles */}
+                    {/* Top Left */}
+                    <div
+                      className="absolute -top-2 -left-2 h-4 w-4 cursor-nwse-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) =>
+                        handleResizeStart(e, decal.id, "tl")
+                      }
+                    />
+
+                    {/* Top */}
+                    <div
+                      className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) => handleResizeStart(e, decal.id, "t")}
+                    />
+
+                    {/* Top Right */}
+                    <div
+                      className="absolute -top-2 -right-2 h-4 w-4 cursor-nesw-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) =>
+                        handleResizeStart(e, decal.id, "tr")
+                      }
+                    />
+
+                    {/* Right */}
+                    <div
+                      className="absolute top-1/2 -right-2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) => handleResizeStart(e, decal.id, "r")}
+                    />
+
+                    {/* Bottom Right */}
+                    <div
+                      className="absolute -right-2 -bottom-2 h-4 w-4 cursor-nwse-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) =>
+                        handleResizeStart(e, decal.id, "br")
+                      }
+                    />
+
+                    {/* Bottom */}
+                    <div
+                      className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) => handleResizeStart(e, decal.id, "b")}
+                    />
+
+                    {/* Bottom Left */}
+                    <div
+                      className="absolute -bottom-2 -left-2 h-4 w-4 cursor-nesw-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) =>
+                        handleResizeStart(e, decal.id, "bl")
+                      }
+                    />
+
+                    {/* Left */}
+                    <div
+                      className="absolute top-1/2 -left-2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) => handleResizeStart(e, decal.id, "l")}
+                    />
+
+                    {/* Rotation handle */}
+                    <div
+                      className="absolute -top-8 left-1/2 flex h-6 w-6 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full bg-gray-800"
+                      style={{ pointerEvents: "auto" }}
+                      onPointerDown={(e) => handleRotateStart(e, decal.id)}
+                    >
+                      <RotateCw className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </Html>
+              )}
             </Decal>
           ),
       )}
-
-      {/* Render control points separately for the active decal */}
-      {activeDecalId &&
-        decals
-          .filter((decal) => decal.id === activeDecalId && decal.position)
-          .map((decal) => (
-            <Html
-              key={`controls-${decal.id}`}
-              position={decal.position as [number, number, number]}
-              rotation={decal.rotation}
-              transform
-            >
-              <div
-                className="relative"
-                style={{
-                  width: `${decal.scaleX * 2}px`,
-                  height: `${decal.scaleY * 2}px`,
-                  transform: "translate(-50%, -50%)",
-                  pointerEvents: "none",
-                }}
-              >
-                {/* Resize handles */}
-                {/* Top Left */}
-                <div
-                  className="absolute -top-2 -left-2 h-4 w-4 cursor-nwse-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "tl")}
-                />
-
-                {/* Top */}
-                <div
-                  className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "t")}
-                />
-
-                {/* Top Right */}
-                <div
-                  className="absolute -top-2 -right-2 h-4 w-4 cursor-nesw-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "tr")}
-                />
-
-                {/* Right */}
-                <div
-                  className="absolute top-1/2 -right-2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "r")}
-                />
-
-                {/* Bottom Right */}
-                <div
-                  className="absolute -right-2 -bottom-2 h-4 w-4 cursor-nwse-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "br")}
-                />
-
-                {/* Bottom */}
-                <div
-                  className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "b")}
-                />
-
-                {/* Bottom Left */}
-                <div
-                  className="absolute -bottom-2 -left-2 h-4 w-4 cursor-nesw-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "bl")}
-                />
-
-                {/* Left */}
-                <div
-                  className="absolute top-1/2 -left-2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleResizeStart(e, decal.id, "l")}
-                />
-
-                {/* Rotation handle */}
-                <div
-                  className="absolute -top-8 left-1/2 flex h-6 w-6 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full bg-gray-800"
-                  style={{ pointerEvents: "auto" }}
-                  onPointerDown={(e) => handleRotateStart(e, decal.id)}
-                >
-                  <RotateCw className="h-4 w-4 text-white" />
-                </div>
-              </div>
-            </Html>
-          ))}
     </mesh>
   );
 }

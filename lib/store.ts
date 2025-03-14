@@ -6,9 +6,9 @@ interface DecalItem {
   id: string;
   image: string;
   aspect: number;
-  scale: number;
   scaleX: number;
   scaleY: number;
+  scaleZ: number;
   texture: Texture | null;
   position: [number, number, number] | null;
   rotation: [number, number, number];
@@ -89,9 +89,9 @@ export const useClothingStore = create<ClothingState>((set) => ({
           id: newId,
           image,
           aspect,
-          scale: 10, // Default scale
           scaleX: 10 * aspect, // Default scaleX
           scaleY: 10, // Default scaleY
+          scaleZ: 10, // Default scaleZ
           texture: null,
           position: null,
           rotation: [Math.PI / 2, 0, 0],
@@ -149,7 +149,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
                 ...decal,
                 scaleX,
                 scaleY,
-                scale: Math.max(scaleX / decal.aspect, scaleY), // Update scale for compatibility
               }
             : decal,
         ),

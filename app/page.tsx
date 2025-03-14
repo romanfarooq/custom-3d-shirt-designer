@@ -50,15 +50,15 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-white">
-      <header className="w-full border-b border-gray-100 px-8 py-6">
+      <header className="w-full border-b border-gray-100 px-8 py-5">
         <h1 className="text-center text-3xl font-bold text-gray-900">
           FASHION <span className="text-destructive">STUDIO</span>
         </h1>
       </header>
 
       <div className="flex w-full flex-grow flex-col md:flex-row">
-        {/* 3D Canvas - Left half on desktop */}
-        <div className="bg-secondary relative h-[50vh] w-full overflow-hidden rounded-lg md:h-auto md:w-1/2">
+        {/* 3D Canvas - Left half on desktop - Fixed to screen */}
+        <div className="bg-secondary fixed top-20 bottom-0 left-0 h-[50vh] w-full overflow-hidden md:h-[calc(100vh-72px)] md:w-1/2">
           <Canvas>
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={1} />
@@ -69,9 +69,9 @@ export default function Home() {
             </Suspense>
             <OrbitControls
               ref={orbitControlsRef}
-              enablePan={!isDragging}
-              enableRotate={!isDragging}
+              enablePan={false}
               enableZoom={!isDragging}
+              enableRotate={!isDragging}
               minPolarAngle={Math.PI / 6} // Limit upward rotation (30 degrees from top)
               maxPolarAngle={Math.PI / 2} // Limit downward rotation (90 degrees - horizontal view)
               minDistance={25} // Prevent zooming too close/inside the shirt
@@ -92,8 +92,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Customization Panel - Right half on desktop */}
-        <div className="flex w-full flex-col justify-center p-8 md:w-1/2">
+        {/* Customization Panel - Right half on desktop - Scrollable */}
+        <div className="flex w-full flex-col justify-center p-8 md:ml-[50%] md:w-1/2">
           <div className="mx-auto max-w-md">
             <h2 className="mb-6 text-2xl font-semibold text-gray-900">
               Customize Your T-Shirt
