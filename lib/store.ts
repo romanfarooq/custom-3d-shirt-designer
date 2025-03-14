@@ -2,37 +2,46 @@ import { create } from "zustand";
 import type { Texture, Vector3 } from "three";
 
 // Combined interface for decal properties
-interface DecalItem {
+export interface DecalItem {
   id: string;
   image: string;
   aspect: number;
-  scaleX: number;
-  scaleY: number;
-  scaleZ: number;
   texture: Texture | null;
+  scale: [number, number, number];
   position: [number, number, number] | null;
   rotation: [number, number, number];
 }
 
 // New interface for interaction state
-type InteractionMode =
+export type InteractionMode =
   | "idle"
   | "placing"
   | "dragging"
   | "resizing"
   | "rotating";
 
-interface InteractionState {
+// Type for resize handle positions
+export type ResizeHandle =
+  | "tl" // Top Left
+  | "tr" // Top Right
+  | "bl" // Bottom Left
+  | "br" // Bottom Right
+  | "t" // Top
+  | "r" // Right
+  | "b" // Bottom
+  | "l"; // Left
+
+export interface InteractionState {
   mode: InteractionMode;
   dragOffset: Vector3 | null;
   activeDecalId: string | null;
-  resizeHandle: string | null; // "tl", "tr", "bl", "br", "t", "r", "b", "l"
+  resizeHandle: ResizeHandle | null;
   initialScale: { x: number; y: number } | null;
-  initialRotation: [number, number, number] | null;
   initialPointer: { x: number; y: number } | null;
+  initialRotation: [number, number, number] | null;
 }
 
-interface ClothingState {
+export interface ClothingState {
   // State properties
   color: string;
   decals: DecalItem[];
@@ -52,7 +61,7 @@ interface ClothingState {
     mode: InteractionMode,
     options?: {
       offset?: Vector3 | null;
-      resizeHandle?: string | null;
+      resizeHandle?: ResizeHandle | null;
       initialScale?: { x: number; y: number } | null;
       initialRotation?: [number, number, number] | null;
       initialPointer?: { x: number; y: number } | null;
@@ -89,11 +98,9 @@ export const useClothingStore = create<ClothingState>((set) => ({
           id: newId,
           image,
           aspect,
-          scaleX: 10 * aspect, // Default scaleX
-          scaleY: 10, // Default scaleY
-          scaleZ: 10, // Default scaleZ
           texture: null,
           position: null,
+          scale: [10 * aspect, 10, 10],
           rotation: [Math.PI / 2, 0, 0],
         },
       ],

@@ -2,8 +2,8 @@
 
 import { RotateCw } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { useClothingStore } from "@/lib/store";
 import { Decal, useGLTF, Html } from "@react-three/drei";
+import { type ResizeHandle, useClothingStore } from "@/lib/store";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
 import { type Mesh, Vector3, Raycaster, TextureLoader } from "three";
 
@@ -109,7 +109,7 @@ export function ShirtModel() {
   const handleResizeStart = (
     event: React.PointerEvent,
     decalId: string,
-    handle: string,
+    handle: ResizeHandle,
   ) => {
     event.stopPropagation();
 
@@ -118,7 +118,7 @@ export function ShirtModel() {
 
     setInteractionMode("resizing", {
       resizeHandle: handle,
-      initialScale: { x: decal.scaleX, y: decal.scaleY },
+      initialScale: { x: decal.scale[0], y: decal.scale[1] },
       initialPointer: { x: event.clientX, y: event.clientY },
     });
   };
@@ -257,9 +257,9 @@ export function ShirtModel() {
           decal.texture && (
             <Decal
               key={decal.id}
+              scale={decal.scale}
               position={decal.position}
               rotation={decal.rotation}
-              scale={[decal.scaleX, decal.scaleY, decal.scaleZ]}
               onPointerUp={handlePointerUp}
               onPointerDown={(e) => handlePointerDown(e, decal.id)}
             >
@@ -281,8 +281,8 @@ export function ShirtModel() {
                   <div
                     className="pointer-events-none relative -translate-x-1/2 -translate-y-1/2"
                     style={{
-                      width: `${decal.scaleX * 2}px`,
-                      height: `${decal.scaleY * 2}px`,
+                      width: `${decal.scale[0] * 2}px`,
+                      height: `${decal.scale[1] * 2}px`,
                     }}
                   >
                     {/* Resize handles */}
