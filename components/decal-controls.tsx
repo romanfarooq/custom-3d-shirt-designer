@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useClothingStore } from "@/lib/store";
 
 export function DecalControls() {
@@ -19,18 +21,21 @@ export function DecalControls() {
         {decals.map((decal) => (
           <div
             key={decal.id}
-            className={`relative cursor-pointer rounded border-2 p-1 ${
-              activeDecalId === decal.id ? "border-accent" : "border-gray-200"
-            }`}
+            className={cn(
+              "relative cursor-pointer rounded border-2 p-1",
+              activeDecalId === decal.id ? "border-black" : "border-gray-200",
+            )}
             onClick={() => setActiveDecal(decal.id)}
           >
-            <img
-              src={decal.image || "/placeholder.svg"}
+            <Image
+              src={decal.image}
               alt="Decal"
+              height={64}
+              width={64}
               className="aspect-square h-full w-full object-contain"
             />
             <button
-              className="bg-destructive hover:bg-destructive/80 absolute -top-2 -right-2 rounded-full p-1 text-white"
+              className="bg-destructive hover:bg-destructive/80 absolute -top-2 -right-2 cursor-pointer rounded-full p-1 text-white"
               onClick={(e) => {
                 e.stopPropagation();
                 removeDecal(decal.id);

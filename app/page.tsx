@@ -49,8 +49,8 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-white">
-      <header className="w-full border-b border-gray-100 px-8 py-5">
+    <main className="flex min-h-screen flex-col items-center bg-white pt-[72px]">
+      <header className="fixed top-0 left-0 z-50 w-full border-b border-gray-100 bg-white px-8 py-5">
         <h1 className="text-center text-3xl font-bold text-gray-900">
           FASHION <span className="text-destructive">STUDIO</span>
         </h1>
