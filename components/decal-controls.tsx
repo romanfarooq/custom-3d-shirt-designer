@@ -1,38 +1,61 @@
-"use client";
+"use clinet";
 
-import { Html } from "@react-three/drei";
+import { Decal } from "@react-three/drei";
+import { Vector3, Euler, Quaternion } from "three";
+
+interface DecalControlsProps {
+  scale: Vector3;
+  rotation: Euler;
+  position: Vector3;
+}
+
+const controlPoints = [
+  new Vector3(-0.5, -0.5, 0), // Top-left
+  new Vector3(0.5, -0.5, 0), // Top-right
+  new Vector3(-0.5, 0.5, 0), // Bottom-left
+  new Vector3(0.5, 0.5, 0), // Bottom-right
+  new Vector3(0, -0.5, 0), // Top (midpoint)
+  new Vector3(0, 0.5, 0), // Bottom (midpoint)
+  new Vector3(-0.5, 0, 0), // Left (midpoint)
+  new Vector3(0.5, 0, 0), // Right (midpoint)
+  new Vector3(0, -0.7, 0), // Rotation handle
+];
 
 export function DecalControls({
   scale,
-  position,
   rotation,
-}: {
-  scale: [number, number, number];
-  position: [number, number, number];
-  rotation: [number, number, number];
-}) {
-  const halfWidth = scale[0] / 2;
-  const halfHeight = scale[1] / 2;
-
-  const points: { position: [number, number, number]; type: string }[] = [
-    { position: [0, -halfHeight, 0], type: "top" },
-    { position: [halfWidth, -halfHeight, 0], type: "topRight" },
-    { position: [halfWidth, 0, 0], type: "right" },
-    { position: [halfWidth, halfHeight, 0], type: "bottomRight" },
-    { position: [0, halfHeight, 0], type: "bottom" },
-    { position: [-halfWidth, halfHeight, 0], type: "bottomLeft" },
-    { position: [-halfWidth, 0, 0], type: "left" },
-    { position: [-halfWidth, -halfHeight, 0], type: "topLeft" },
-    { position: [0, -halfHeight - 1, 0], type: "rotate" }, // Adjusted rotation handle
-  ];
-
+  position,
+}: DecalControlsProps) {
   return (
-    <group position={position} rotation={rotation}>
-      {points.map((point) => (
-        <Html key={point.type} position={point.position}>
-          <div className="size-1 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-gray-800 ring" />
-        </Html>
-      ))}
-    </group>
+    <>
+      {controlPoints.map((offset, index) => {
+        const scaledOffset = new Vector3(
+          offset.x * scale.x,
+          offset.y * scale.y,
+          0,
+        );
+
+        // Apply rotation
+        const quaternion = new Quaternion().setFromEuler(rotation);
+        scaledOffset.applyQuaternion(quaternion);
+
+        return (
+          <Decal
+            key={index}
+            rotation={rotation}
+            scale={new Vector3(0.5, 0.5, 10)}
+            position={position.clone().add(scaledOffset)}
+          >
+            <meshBasicMaterial
+              color="blue"
+              transparent
+              polygonOffset
+              polygonOffsetFactor={-2}
+              opacity={0.5}
+            />
+          </Decal>
+        );
+      })}
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Texture, Vector3 } from "three";
+import { Euler, Texture, Vector3 } from "three";
 
 // Combined interface for decal properties
 export interface DecalItem {
@@ -7,9 +7,9 @@ export interface DecalItem {
   image: string;
   aspect: number;
   texture: Texture | null;
-  scale: [number, number, number];
-  position: [number, number, number] | null;
-  rotation: [number, number, number];
+  scale: Vector3;
+  rotation: Euler;
+  position: Vector3 | null;
 }
 
 // New interface for interaction state
@@ -35,10 +35,8 @@ export interface ClothingState {
   // Actions
   setColor: (color: string) => void;
   addDecal: (url: string, aspect: number) => void;
-  placeDecal: (position: [number, number, number] | null) => void;
-  updateDecalPosition: (position: [number, number, number]) => void;
-  updateDecalScale: (scaleX: number, scaleY: number) => void;
-  updateDecalRotation: (rotation: [number, number, number]) => void;
+  placeDecal: (position: Vector3 | null) => void;
+  updateDecalPosition: (position: Vector3) => void;
   removeDecal: (id: string) => void;
   setActiveDecal: (id: string | null) => void;
   setTexture: (id: string, texture: Texture) => void;
@@ -77,8 +75,8 @@ export const useClothingStore = create<ClothingState>((set) => ({
           aspect,
           texture: null,
           position: null,
-          scale: [10 * aspect, 10, 10],
-          rotation: [Math.PI / 2, 0, 0],
+          scale: new Vector3(10 * aspect, 10, 10),
+          rotation: new Euler(Math.PI / 2, 0, 0),
         },
       ],
       interaction: {
@@ -113,36 +111,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
       return {
         decals: state.decals.map((decal) =>
           decal.id === activeDecalId ? { ...decal, position } : decal,
-        ),
-      };
-    }),
-
-  updateDecalScale: (scaleX, scaleY) =>
-    set((state) => {
-      const { activeDecalId } = state.interaction;
-      if (!activeDecalId) return state;
-
-      return {
-        decals: state.decals.map((decal) =>
-          decal.id === activeDecalId
-            ? {
-                ...decal,
-                scaleX,
-                scaleY,
-              }
-            : decal,
-        ),
-      };
-    }),
-
-  updateDecalRotation: (rotation) =>
-    set((state) => {
-      const { activeDecalId } = state.interaction;
-      if (!activeDecalId) return state;
-
-      return {
-        decals: state.decals.map((decal) =>
-          decal.id === activeDecalId ? { ...decal, rotation } : decal,
         ),
       };
     }),

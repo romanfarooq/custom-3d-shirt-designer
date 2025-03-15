@@ -70,7 +70,7 @@ export function ShirtModel() {
     const localPosition = meshRef.current.worldToLocal(worldPosition.clone());
 
     // Place the decal at the clicked position
-    placeDecal(localPosition.toArray());
+    placeDecal(localPosition);
   };
 
   // Handle pointer down on a decal
@@ -125,7 +125,7 @@ export function ShirtModel() {
         const localPosition = meshRef.current.worldToLocal(hitPoint);
 
         // Update the decal position
-        updateDecalPosition(localPosition.toArray());
+        updateDecalPosition(localPosition);
       }
     }
   });
@@ -165,8 +165,8 @@ export function ShirtModel() {
               {activeDecalId === decal.id && (
                 <DecalControls
                   scale={decal.scale}
-                  position={decal.position}
                   rotation={decal.rotation}
+                  position={decal.position}
                 />
               )}
             </Fragment>
