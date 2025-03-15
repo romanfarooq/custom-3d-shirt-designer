@@ -7,9 +7,9 @@ import { Stage, OrbitControls } from "@react-three/drei";
 import { useClothingStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { ShirtModel } from "@/components/shirt-model";
+import { DecalInfo } from "@/components/decal-Info";
 import { ColorPicker } from "@/components/color-picker";
 import { DecalUploader } from "@/components/decal-uploader";
-import { DecalControls } from "@/components/decal-controls";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 
 export default function Home() {
@@ -100,7 +100,7 @@ export default function Home() {
             </h2>
 
             <DecalUploader />
-            <DecalControls />
+            <DecalInfo />
             <ColorPicker />
           </div>
 

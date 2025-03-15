@@ -20,25 +20,10 @@ export type InteractionMode =
   | "resizing"
   | "rotating";
 
-// Type for resize handle positions
-export type ResizeHandle =
-  | "tl" // Top Left
-  | "tr" // Top Right
-  | "bl" // Bottom Left
-  | "br" // Bottom Right
-  | "t" // Top
-  | "r" // Right
-  | "b" // Bottom
-  | "l"; // Left
-
 export interface InteractionState {
   mode: InteractionMode;
   dragOffset: Vector3 | null;
   activeDecalId: string | null;
-  resizeHandle: ResizeHandle | null;
-  initialScale: { x: number; y: number } | null;
-  initialPointer: { x: number; y: number } | null;
-  initialRotation: [number, number, number] | null;
 }
 
 export interface ClothingState {
@@ -61,10 +46,6 @@ export interface ClothingState {
     mode: InteractionMode,
     options?: {
       offset?: Vector3 | null;
-      resizeHandle?: ResizeHandle | null;
-      initialScale?: { x: number; y: number } | null;
-      initialRotation?: [number, number, number] | null;
-      initialPointer?: { x: number; y: number } | null;
     },
   ) => void;
 }
@@ -80,10 +61,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
     mode: "idle",
     dragOffset: null,
     activeDecalId: null,
-    resizeHandle: null,
-    initialScale: null,
-    initialRotation: null,
-    initialPointer: null,
   },
 
   // Actions to update state
@@ -108,10 +85,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
         mode: "placing",
         dragOffset: null,
         activeDecalId: newId,
-        resizeHandle: null,
-        initialScale: null,
-        initialRotation: null,
-        initialPointer: null,
       },
     }));
   },
@@ -194,10 +167,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
         ...state.interaction,
         activeDecalId: id,
         mode: "idle",
-        resizeHandle: null,
-        initialScale: null,
-        initialRotation: null,
-        initialPointer: null,
       },
     })),
 
@@ -214,12 +183,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
         ...state.interaction,
         mode,
         dragOffset: options.offset ?? state.interaction.dragOffset,
-        resizeHandle: options.resizeHandle ?? state.interaction.resizeHandle,
-        initialScale: options.initialScale ?? state.interaction.initialScale,
-        initialRotation:
-          options.initialRotation ?? state.interaction.initialRotation,
-        initialPointer:
-          options.initialPointer ?? state.interaction.initialPointer,
       },
     })),
 }));
