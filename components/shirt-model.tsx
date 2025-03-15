@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { useClothingStore } from "@/lib/store";
 import { Decal, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
@@ -146,9 +146,8 @@ export function ShirtModel() {
         (decal) =>
           decal.position &&
           decal.texture && (
-            <>
+            <Fragment key={decal.id}>
               <Decal
-                key={decal.id}
                 scale={decal.scale}
                 position={decal.position}
                 rotation={decal.rotation}
@@ -162,17 +161,15 @@ export function ShirtModel() {
                   polygonOffsetFactor={-1}
                   opacity={isDragging && activeDecalId === decal.id ? 0.8 : 1}
                 />
-
-                {/* Render control points separately for the active decal */}
-                {activeDecalId === decal.id && (
-                  <DecalControls
-                    scale={decal.scale}
-                    position={decal.position}
-                    rotation={decal.rotation}
-                  />
-                )}
               </Decal>
-            </>
+              {activeDecalId === decal.id && (
+                <DecalControls
+                  scale={decal.scale}
+                  position={decal.position}
+                  rotation={decal.rotation}
+                />
+              )}
+            </Fragment>
           ),
       )}
     </mesh>

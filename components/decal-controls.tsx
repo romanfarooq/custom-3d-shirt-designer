@@ -2,31 +2,28 @@
 
 import { Html } from "@react-three/drei";
 
-interface DecalControlsProps {
-  scale: [number, number, number];
-  position: [number, number, number];
-  rotation: [number, number, number];
-}
-
 export function DecalControls({
   scale,
   position,
   rotation,
-}: DecalControlsProps) {
-  // Calculate control point positions based on scale
+}: {
+  scale: [number, number, number];
+  position: [number, number, number];
+  rotation: [number, number, number];
+}) {
   const halfWidth = scale[0] / 2;
   const halfHeight = scale[1] / 2;
 
   const points: { position: [number, number, number]; type: string }[] = [
-    { position: [0, halfHeight, 0], type: "top" },
-    { position: [halfWidth, halfHeight, 0], type: "topRight" },
+    { position: [0, -halfHeight, 0], type: "top" },
+    { position: [halfWidth, -halfHeight, 0], type: "topRight" },
     { position: [halfWidth, 0, 0], type: "right" },
-    { position: [halfWidth, -halfHeight, 0], type: "bottomRight" },
-    { position: [0, -halfHeight, 0], type: "bottom" },
-    { position: [-halfWidth, -halfHeight, 0], type: "bottomLeft" },
+    { position: [halfWidth, halfHeight, 0], type: "bottomRight" },
+    { position: [0, halfHeight, 0], type: "bottom" },
+    { position: [-halfWidth, halfHeight, 0], type: "bottomLeft" },
     { position: [-halfWidth, 0, 0], type: "left" },
-    { position: [-halfWidth, halfHeight, 0], type: "topLeft" },
-    { position: [0, halfHeight + 20, 0], type: "rotate" },
+    { position: [-halfWidth, -halfHeight, 0], type: "topLeft" },
+    { position: [0, -halfHeight - 1, 0], type: "rotate" }, // Adjusted rotation handle
   ];
 
   return (
