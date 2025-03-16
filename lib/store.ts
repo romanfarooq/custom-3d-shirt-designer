@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type Texture, Euler, Vector3 } from "three";
+import { type Texture, Euler, Vector3, Quaternion } from "three";
 
 export interface DecalItem {
   id: string;
@@ -66,17 +66,64 @@ export interface ClothingState {
       startScale?: Vector3 | null;
       startRotation?: Euler | null;
       startPointerPosition?: Vector3 | null;
-      controlPoint?: ControlPointName | null;
+      controlPoint?: { position: Vector3; type: ControlPointName }[] | null;
       activeControlPoint?: ControlPointName | null;
     },
   ) => void;
-  updateControlPoints: (points: { position: Vector3; type: ControlPointName }[]) => void;
+  updateControlPoints: (
+    points: { position: Vector3; type: ControlPointName }[],
+  ) => void;
   updateDecalScale: (newScale: Vector3) => void;
   updateDecalRotation: (newRotation: Euler) => void;
 }
 
 // Helper to generate unique IDs
 const generateId = () => Math.random().toString(36).substring(2, 9);
+
+// Base control points for decal manipulation
+const BASE_CONTROL_POINTS: { position: Vector3; type: ControlPointName }[] = [
+  { position: new Vector3(-0.5, -0.5, 0), type: "tl" },
+  { position: new Vector3(0.5, -0.5, 0), type: "tr" },
+  { position: new Vector3(-0.5, 0.5, 0), type: "bl" },
+  { position: new Vector3(0.5, 0.5, 0), type: "br" },
+  { position: new Vector3(0, -0.5, 0), type: "t" },
+  { position: new Vector3(0.5, 0, 0), type: "r" },
+  { position: new Vector3(0, 0.5, 0), type: "b" },
+  { position: new Vector3(-0.5, 0, 0), type: "l" },
+  { position: new Vector3(0, -0.7, 0), type: "rot" },
+];
+
+// Helper function to calculate control points
+const calculateControlPoints = (
+  scale: Vector3,
+  position: Vector3,
+  rotation: Euler,
+) => {
+  const quaternion = new Quaternion().setFromEuler(rotation);
+
+  return BASE_CONTROL_POINTS.map((point) => {
+    // Clone the base position to avoid mutating the original
+    const basePosition = point.position.clone();
+
+    // Scale the position
+    const scaledPosition = new Vector3(
+      basePosition.x * scale.x,
+      basePosition.y * scale.y,
+      0,
+    );
+
+    // Apply rotation
+    scaledPosition.applyQuaternion(quaternion);
+
+    // Add to decal position
+    const finalPosition = position.clone().add(scaledPosition);
+
+    return {
+      position: finalPosition,
+      type: point.type,
+    };
+  });
+};
 
 export const useClothingStore = create<ClothingState>((set) => ({
   // Initial state
@@ -145,10 +192,25 @@ export const useClothingStore = create<ClothingState>((set) => ({
       const { activeDecalId } = state.interaction;
       if (!activeDecalId) return state;
 
+      // Find the active decal to get its current properties
+      const activeDecal = state.decals.find((d) => d.id === activeDecalId);
+      if (!activeDecal) return state;
+
+      // Calculate new control points immediately using the helper function
+      const newControlPoints = calculateControlPoints(
+        activeDecal.scale,
+        position,
+        activeDecal.rotation,
+      );
+
       return {
         decals: state.decals.map((decal) =>
           decal.id === activeDecalId ? { ...decal, position } : decal,
         ),
+        interaction: {
+          ...state.interaction,
+          controlPoints: newControlPoints,
+        },
       };
     }),
 
@@ -158,10 +220,25 @@ export const useClothingStore = create<ClothingState>((set) => ({
       const { activeDecalId } = state.interaction;
       if (!activeDecalId) return state;
 
+      // Find the active decal to get its current properties
+      const activeDecal = state.decals.find((d) => d.id === activeDecalId);
+      if (!activeDecal?.position) return state;
+
+      // Calculate new control points immediately using the helper function
+      const newControlPoints = calculateControlPoints(
+        newScale,
+        activeDecal.position,
+        activeDecal.rotation,
+      );
+
       return {
         decals: state.decals.map((decal) =>
           decal.id === activeDecalId ? { ...decal, scale: newScale } : decal,
         ),
+        interaction: {
+          ...state.interaction,
+          controlPoints: newControlPoints,
+        },
       };
     }),
 
@@ -171,12 +248,27 @@ export const useClothingStore = create<ClothingState>((set) => ({
       const { activeDecalId } = state.interaction;
       if (!activeDecalId) return state;
 
+      // Find the active decal to get its current properties
+      const activeDecal = state.decals.find((d) => d.id === activeDecalId);
+      if (!activeDecal?.position) return state;
+
+      // Calculate new control points immediately using the helper function
+      const newControlPoints = calculateControlPoints(
+        activeDecal.scale,
+        activeDecal.position,
+        newRotation,
+      );
+
       return {
         decals: state.decals.map((decal) =>
           decal.id === activeDecalId
             ? { ...decal, rotation: newRotation }
             : decal,
         ),
+        interaction: {
+          ...state.interaction,
+          controlPoints: newControlPoints,
+        },
       };
     }),
 
@@ -230,9 +322,10 @@ export const useClothingStore = create<ClothingState>((set) => ({
         mode,
         dragOffset: options.offset ?? state.interaction.dragOffset,
         startScale: options.startScale ?? state.interaction.startScale,
+        controlPoints: options.controlPoint ?? state.interaction.controlPoints,
         startRotation: options.startRotation ?? state.interaction.startRotation,
         activeControlPoint:
-          options.controlPoint ?? state.interaction.activeControlPoint,
+          options.activeControlPoint ?? state.interaction.activeControlPoint,
         startPointerPosition:
           options.startPointerPosition ??
           state.interaction.startPointerPosition,

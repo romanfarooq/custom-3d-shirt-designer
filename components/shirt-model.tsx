@@ -352,21 +352,8 @@ export function ShirtModel() {
       }
     }
 
-    // Calculate control points for active decal
-    if (activeDecalId) {
-      const activeDecal = decals.find((d) => d.id === activeDecalId);
-      if (activeDecal?.position) {
-        // Calculate control points based on the active decal's properties
-        const calculatedPoints = calculateControlPoints(
-          activeDecal.scale,
-          activeDecal.position,
-          activeDecal.rotation,
-        );
-
-        // Update the control points in the store
-        updateControlPoints(calculatedPoints);
-      }
-    }
+    // We no longer need to calculate control points here as they're updated immediately in the store functions
+    // This improves performance and prevents control points from lagging behind during resize operations
   });
 
   return (

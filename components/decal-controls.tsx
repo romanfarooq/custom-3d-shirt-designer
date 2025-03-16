@@ -17,7 +17,7 @@ export function DecalControls({ visible }: { visible: boolean }) {
 
   const handlePointerDown = (
     event: ThreeEvent<PointerEvent>,
-    controlPoint: ControlPointName,
+    activeControlPoint: ControlPointName,
   ) => {
     event.stopPropagation();
 
@@ -27,16 +27,16 @@ export function DecalControls({ visible }: { visible: boolean }) {
     const startPointerPosition = event.point.clone();
 
     // Set the interaction mode based on the control point type
-    if (controlPoint === "rot") {
+    if (activeControlPoint === "rot") {
       setInteractionMode("rotating", {
-        controlPoint,
         startRotation,
+        activeControlPoint,
         startPointerPosition,
       });
     } else {
       setInteractionMode("resizing", {
-        controlPoint,
         startScale,
+        activeControlPoint,
         startPointerPosition,
       });
     }
