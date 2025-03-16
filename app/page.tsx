@@ -49,16 +49,16 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-white pt-[72px]">
+    <main className="flex min-h-screen flex-col items-center bg-white pt-16">
       <header className="fixed top-0 left-0 z-50 w-full border-b border-gray-100 bg-white px-8 py-5">
         <h1 className="text-center text-3xl font-bold text-gray-900">
           FASHION <span className="text-destructive">STUDIO</span>
         </h1>
       </header>
 
-      <div className="flex w-full flex-grow flex-col md:flex-row">
+      <div className="flex w-full flex-grow flex-col">
         {/* 3D Canvas - Left half on desktop - Fixed to screen */}
-        <div className="bg-secondary fixed top-20 bottom-0 left-0 h-[50vh] w-full overflow-hidden md:h-[calc(100vh-72px)] md:w-1/2">
+        <div className="bg-secondary relative h-[50vh] w-full overflow-hidden md:fixed md:bottom-0 md:left-0 md:h-[calc(100vh-72px)] md:w-1/2">
           <Canvas>
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={1} />
