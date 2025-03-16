@@ -165,6 +165,8 @@ export function ShirtModel() {
 
     if (!meshRef.current) return;
 
+    setActiveDecal(decalId);
+
     // Find the decal
     const decal = decals.find((d) => d.id === decalId);
     if (!decal?.position) return;
@@ -182,7 +184,7 @@ export function ShirtModel() {
     scale: Vector3,
     position: Vector3,
     rotation: Euler,
-  ): ControlPoint[] => {
+  ) => {
     const quaternion = new Quaternion().setFromEuler(rotation);
 
     return BASE_CONTROL_POINTS.map((point) => {
@@ -268,30 +270,30 @@ export function ShirtModel() {
             // Corner points - resize in both dimensions
             case "tl": // Top Left
               newScale.x = Math.max(1, startScale.x - delta.x * 2);
-              newScale.y = Math.max(1, startScale.y - delta.y * 2);
+              newScale.y = Math.max(1, startScale.y + delta.y * 2); // Fixed: Inverted y-axis delta
               break;
             case "tr": // Top Right
               newScale.x = Math.max(1, startScale.x + delta.x * 2);
-              newScale.y = Math.max(1, startScale.y - delta.y * 2);
+              newScale.y = Math.max(1, startScale.y + delta.y * 2); // Fixed: Inverted y-axis delta
               break;
             case "bl": // Bottom Left
               newScale.x = Math.max(1, startScale.x - delta.x * 2);
-              newScale.y = Math.max(1, startScale.y + delta.y * 2);
+              newScale.y = Math.max(1, startScale.y - delta.y * 2); // Fixed: Inverted y-axis delta
               break;
             case "br": // Bottom Right
               newScale.x = Math.max(1, startScale.x + delta.x * 2);
-              newScale.y = Math.max(1, startScale.y + delta.y * 2);
+              newScale.y = Math.max(1, startScale.y - delta.y * 2); // Fixed: Inverted y-axis delta
               break;
 
             // Edge points - resize in one dimension
             case "t": // Top
-              newScale.y = Math.max(1, startScale.y - delta.y * 2);
+              newScale.y = Math.max(1, startScale.y + delta.y * 2); // Fixed: Inverted y-axis delta
               break;
             case "r": // Right
               newScale.x = Math.max(1, startScale.x + delta.x * 2);
               break;
             case "b": // Bottom
-              newScale.y = Math.max(1, startScale.y + delta.y * 2);
+              newScale.y = Math.max(1, startScale.y - delta.y * 2); // Fixed: Inverted y-axis delta
               break;
             case "l": // Left
               newScale.x = Math.max(1, startScale.x - delta.x * 2);
@@ -337,7 +339,8 @@ export function ShirtModel() {
           // Calculate the angle between these vectors
           const startAngle = Math.atan2(startVector.y, startVector.x);
           const currentAngle = Math.atan2(currentVector.y, currentVector.x);
-          const angleDelta = currentAngle - startAngle;
+          // Reverse the angle delta to fix the rotation direction
+          const angleDelta = startAngle - currentAngle;
 
           // Create a new rotation based on the original plus the delta
           const newRotation = startRotation.clone();

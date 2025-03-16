@@ -39,7 +39,7 @@ export interface InteractionState {
   dragOffset: Vector3 | null;
   activeDecalId: string | null;
   activeControlPoint: ControlPointName | null;
-  controlPoints: ControlPoint[];
+  controlPoints: { position: Vector3; type: ControlPointName }[];
   startScale: Vector3 | null;
   startRotation: Euler | null;
   startPointerPosition: Vector3 | null;
@@ -70,7 +70,7 @@ export interface ClothingState {
       activeControlPoint?: ControlPointName | null;
     },
   ) => void;
-  updateControlPoints: (points: ControlPoint[]) => void;
+  updateControlPoints: (points: { position: Vector3; type: ControlPointName }[]) => void;
   updateDecalScale: (newScale: Vector3) => void;
   updateDecalRotation: (newRotation: Euler) => void;
 }

@@ -10,11 +10,8 @@ export function DecalControls({ visible }: { visible: boolean }) {
 
   const activeDecalId = interaction.activeDecalId;
   const controlPoints = interaction.controlPoints;
-  const activeControlPoint = interaction.activeControlPoint;
 
-  const activeDecal = activeDecalId
-    ? decals.find((d) => d.id === activeDecalId)
-    : null;
+  const activeDecal = decals.find((d) => d.id === activeDecalId);
 
   if (!visible || controlPoints.length === 0 || !activeDecal) return null;
 
@@ -50,23 +47,16 @@ export function DecalControls({ visible }: { visible: boolean }) {
       {controlPoints.map((point) => (
         <Decal
           key={point.type}
-          rotation={[Math.PI / 2, 0, 0]}
-          scale={new Vector3(1, 1, 20)}
           position={point.position}
+          scale={new Vector3(1, 1, 20)}
+          rotation={activeDecal.rotation}
           onPointerDown={(e) => handlePointerDown(e, point.type)}
         >
           <meshBasicMaterial
-            color={
-              point.type === "rot"
-                ? "green"
-                : activeControlPoint === point.type
-                  ? "yellow"
-                  : "blue"
-            }
+            color="gray"
             transparent
             polygonOffset
             polygonOffsetFactor={-2}
-            opacity={activeControlPoint === point.type ? 0.8 : 0.5}
           />
         </Decal>
       ))}
