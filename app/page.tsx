@@ -13,9 +13,13 @@ import { DecalUploader } from "@/components/decal-uploader";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 
 export default function Home() {
-  const { interaction } = useClothingStore();
   const orbitControlsRef = useRef<OrbitControlsType | null>(null);
-  const isDragging = interaction.mode === "dragging";
+  const {
+    interaction: { mode },
+  } = useClothingStore();
+  const isDragging = mode === "dragging";
+  const isRotating = mode === "rotating";
+  const isResizing = mode === "resizing";
 
   // Function to smoothly reset camera
   const resetCamera = () => {
@@ -70,8 +74,8 @@ export default function Home() {
             <OrbitControls
               ref={orbitControlsRef}
               enablePan={false}
-              enableZoom={!isDragging}
-              enableRotate={!isDragging}
+              enableZoom={!isDragging && !isRotating && !isResizing}
+              enableRotate={!isDragging && !isRotating && !isResizing}
               minPolarAngle={Math.PI / 6} // Limit upward rotation (30 degrees from top)
               maxPolarAngle={Math.PI / 2} // Limit downward rotation (90 degrees - horizontal view)
               minDistance={25} // Prevent zooming too close/inside the shirt

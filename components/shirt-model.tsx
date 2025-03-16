@@ -60,16 +60,27 @@ const BASE_CONTROL_POINTS: { position: Vector3; type: ControlPointName }[] = [
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
   const { nodes, materials } = useGLTF("/shirt_man.glb");
+
   const {
     color,
     decals,
-    interaction,
     placeDecal,
     setTexture,
     setActiveDecal,
-    updateDecalPosition,
+    updateDecalScale,
     setInteractionMode,
+    updateDecalPosition,
     updateControlPoints,
+    updateDecalRotation,
+    interaction: {
+      mode,
+      dragOffset,
+      activeDecalId,
+      activeControlPoint,
+      startScale,
+      startRotation,
+      startPointerPosition,
+    },
   } = useClothingStore();
 
   const { camera, pointer } = useThree();
@@ -77,11 +88,11 @@ export function ShirtModel() {
   // Custom raycaster for dragging
   const dragRaycaster = useRef(new Raycaster());
 
-  // Derived state
-  const dragOffset = interaction.dragOffset;
-  const activeDecalId = interaction.activeDecalId;
-  const isDragging = interaction.mode === "dragging";
-  const isPlacingDecal = interaction.mode === "placing";
+  // Derived states
+  const isDragging = mode === "dragging";
+  const isResizing = mode === "resizing";
+  const isRotating = mode === "rotating";
+  const isPlacingDecal = mode === "placing";
 
   // Load textures for all decals
   useEffect(() => {
@@ -102,14 +113,14 @@ export function ShirtModel() {
   // Handle background click to deselect active decal
   useEffect(() => {
     const handleBackgroundClick = () => {
-      if (activeDecalId && interaction.mode === "idle") {
+      if (activeDecalId && mode === "idle") {
         setActiveDecal(null);
       }
     };
 
     window.addEventListener("click", handleBackgroundClick);
     return () => window.removeEventListener("click", handleBackgroundClick);
-  }, [activeDecalId, interaction.mode, setActiveDecal]);
+  }, [activeDecalId, mode, setActiveDecal]);
 
   const handleClickMesh = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -149,52 +160,10 @@ export function ShirtModel() {
   };
 
   // Global pointer up handler
-  const handlePointerUp = () => {
-    setInteractionMode("idle");
+  const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    setInteractionMode("idle", { offset: null });
   };
-
-  useFrame(() => {
-    if (!meshRef.current) return;
-
-    // Handle dragging
-    if (isDragging && dragOffset && activeDecalId) {
-      // Cast a ray from the camera through the mouse position
-      dragRaycaster.current.setFromCamera(pointer, camera);
-
-      // Check for intersections with the shirt mesh
-      const intersects = dragRaycaster.current.intersectObject(
-        meshRef.current,
-        false,
-      );
-
-      if (intersects.length > 0) {
-        // Get the intersection point and add the offset
-        const hitPoint = intersects[0].point.clone().add(dragOffset);
-
-        // Convert to local space of the shirt
-        const localPosition = meshRef.current.worldToLocal(hitPoint);
-
-        // Update the decal position
-        updateDecalPosition(localPosition);
-      }
-    }
-
-    // Calculate control points for active decal
-    if (activeDecalId) {
-      const activeDecal = decals.find((d) => d.id === activeDecalId);
-      if (activeDecal?.position) {
-        // Calculate control points based on the active decal's properties
-        const calculatedPoints = calculateControlPoints(
-          activeDecal.scale,
-          activeDecal.position,
-          activeDecal.rotation,
-        );
-
-        // Update the control points in the store
-        updateControlPoints(calculatedPoints);
-      }
-    }
-  });
 
   // Function to calculate control points based on decal properties
   const calculateControlPoints = (
@@ -227,6 +196,163 @@ export function ShirtModel() {
       };
     });
   };
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+
+    // Handle dragging
+    if (isDragging && dragOffset && activeDecalId) {
+      // Cast a ray from the camera through the mouse position
+      dragRaycaster.current.setFromCamera(pointer, camera);
+
+      // Check for intersections with the shirt mesh
+      const intersects = dragRaycaster.current.intersectObject(
+        meshRef.current,
+        false,
+      );
+
+      if (intersects.length > 0) {
+        // Get the intersection point and add the offset
+        const hitPoint = intersects[0].point.clone().add(dragOffset);
+
+        // Convert to local space of the shirt
+        const localPosition = meshRef.current.worldToLocal(hitPoint);
+
+        // Update the decal position
+        updateDecalPosition(localPosition);
+      }
+    }
+
+    // Handle resizing the decal
+    if (
+      startScale &&
+      isResizing &&
+      activeDecalId &&
+      activeControlPoint &&
+      startPointerPosition
+    ) {
+      // Cast a ray from the camera through the mouse position
+      dragRaycaster.current.setFromCamera(pointer, camera);
+
+      // Check for intersections with the shirt mesh
+      const intersects = dragRaycaster.current.intersectObject(
+        meshRef.current,
+        false,
+      );
+
+      if (intersects.length > 0) {
+        const currentPoint = intersects[0].point;
+        const activeDecal = decals.find((d) => d.id === activeDecalId);
+
+        if (activeDecal?.position) {
+          // Calculate the movement delta
+          const delta = currentPoint.clone().sub(startPointerPosition);
+
+          // Create a new scale based on the control point being dragged
+          const newScale = startScale.clone();
+
+          // Handle different control points for resizing
+          switch (activeControlPoint) {
+            // Corner points - resize in both dimensions
+            case "tl": // Top Left
+              newScale.x = Math.max(1, startScale.x - delta.x * 2);
+              newScale.y = Math.max(1, startScale.y - delta.y * 2);
+              break;
+            case "tr": // Top Right
+              newScale.x = Math.max(1, startScale.x + delta.x * 2);
+              newScale.y = Math.max(1, startScale.y - delta.y * 2);
+              break;
+            case "bl": // Bottom Left
+              newScale.x = Math.max(1, startScale.x - delta.x * 2);
+              newScale.y = Math.max(1, startScale.y + delta.y * 2);
+              break;
+            case "br": // Bottom Right
+              newScale.x = Math.max(1, startScale.x + delta.x * 2);
+              newScale.y = Math.max(1, startScale.y + delta.y * 2);
+              break;
+
+            // Edge points - resize in one dimension
+            case "t": // Top
+              newScale.y = Math.max(1, startScale.y - delta.y * 2);
+              break;
+            case "r": // Right
+              newScale.x = Math.max(1, startScale.x + delta.x * 2);
+              break;
+            case "b": // Bottom
+              newScale.y = Math.max(1, startScale.y + delta.y * 2);
+              break;
+            case "l": // Left
+              newScale.x = Math.max(1, startScale.x - delta.x * 2);
+              break;
+          }
+
+          // Update the decal scale
+          updateDecalScale(newScale);
+        }
+      }
+    }
+
+    // Handle rotating the decal
+    if (
+      isRotating &&
+      activeDecalId &&
+      startRotation &&
+      startPointerPosition &&
+      activeControlPoint === "rot"
+    ) {
+      // Cast a ray from the camera through the mouse position
+      dragRaycaster.current.setFromCamera(pointer, camera);
+
+      // Check for intersections with the shirt mesh
+      const intersects = dragRaycaster.current.intersectObject(
+        meshRef.current,
+        false,
+      );
+
+      if (intersects.length > 0) {
+        const currentPoint = intersects[0].point;
+        const activeDecal = decals.find((d) => d.id === activeDecalId);
+
+        if (activeDecal?.position) {
+          // Convert decal position to world space
+          const worldDecalPos = activeDecal.position.clone();
+          meshRef.current.localToWorld(worldDecalPos);
+
+          // Calculate angles from decal center to start and current points
+          const startVector = startPointerPosition.clone().sub(worldDecalPos);
+          const currentVector = currentPoint.clone().sub(worldDecalPos);
+
+          // Calculate the angle between these vectors
+          const startAngle = Math.atan2(startVector.y, startVector.x);
+          const currentAngle = Math.atan2(currentVector.y, currentVector.x);
+          const angleDelta = currentAngle - startAngle;
+
+          // Create a new rotation based on the original plus the delta
+          const newRotation = startRotation.clone();
+          newRotation.z = startRotation.z + angleDelta;
+
+          // Update the decal rotation
+          updateDecalRotation(newRotation);
+        }
+      }
+    }
+
+    // Calculate control points for active decal
+    if (activeDecalId) {
+      const activeDecal = decals.find((d) => d.id === activeDecalId);
+      if (activeDecal?.position) {
+        // Calculate control points based on the active decal's properties
+        const calculatedPoints = calculateControlPoints(
+          activeDecal.scale,
+          activeDecal.position,
+          activeDecal.rotation,
+        );
+
+        // Update the control points in the store
+        updateControlPoints(calculatedPoints);
+      }
+    }
+  });
 
   return (
     <mesh

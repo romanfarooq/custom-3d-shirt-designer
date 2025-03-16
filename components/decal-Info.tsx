@@ -6,9 +6,13 @@ import { Trash2 } from "lucide-react";
 import { useClothingStore } from "@/lib/store";
 
 export function DecalInfo() {
-  const { decals, interaction, removeDecal, setActiveDecal } = useClothingStore();
-  const activeDecalId = interaction.activeDecalId;
-  const isPlacingDecal = interaction.mode === "placing";
+  const {
+    decals,
+    removeDecal,
+    setActiveDecal,
+    interaction: { activeDecalId, mode },
+  } = useClothingStore();
+  const isPlacingDecal = mode === "placing";
 
   if (decals.length === 0) return null;
 

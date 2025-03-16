@@ -27,13 +27,22 @@ export interface ControlPoint {
   type: ControlPointName;
 }
 
-export type InteractionMode = "idle" | "placing" | "dragging";
+export type InteractionMode =
+  | "idle"
+  | "placing"
+  | "dragging"
+  | "resizing"
+  | "rotating";
 
 export interface InteractionState {
   mode: InteractionMode;
   dragOffset: Vector3 | null;
   activeDecalId: string | null;
+  activeControlPoint: ControlPointName | null;
   controlPoints: ControlPoint[];
+  startScale: Vector3 | null;
+  startRotation: Euler | null;
+  startPointerPosition: Vector3 | null;
 }
 
 export interface ClothingState {
@@ -50,13 +59,20 @@ export interface ClothingState {
   removeDecal: (id: string) => void;
   setActiveDecal: (id: string | null) => void;
   setTexture: (id: string, texture: Texture) => void;
-  updateControlPoints: (points: ControlPoint[]) => void;
   setInteractionMode: (
     mode: InteractionMode,
     options?: {
       offset?: Vector3 | null;
+      startScale?: Vector3 | null;
+      startRotation?: Euler | null;
+      startPointerPosition?: Vector3 | null;
+      controlPoint?: ControlPointName | null;
+      activeControlPoint?: ControlPointName | null;
     },
   ) => void;
+  updateControlPoints: (points: ControlPoint[]) => void;
+  updateDecalScale: (newScale: Vector3) => void;
+  updateDecalRotation: (newRotation: Euler) => void;
 }
 
 // Helper to generate unique IDs
@@ -70,7 +86,11 @@ export const useClothingStore = create<ClothingState>((set) => ({
     mode: "idle",
     dragOffset: null,
     activeDecalId: null,
+    activeControlPoint: null,
     controlPoints: [],
+    startScale: null,
+    startRotation: null,
+    startPointerPosition: null,
   },
 
   // Actions to update state
@@ -95,7 +115,11 @@ export const useClothingStore = create<ClothingState>((set) => ({
         mode: "placing",
         dragOffset: null,
         activeDecalId: newId,
+        activeControlPoint: null,
         controlPoints: [],
+        startScale: null,
+        startRotation: null,
+        startPointerPosition: null,
       },
     }));
   },
@@ -128,12 +152,48 @@ export const useClothingStore = create<ClothingState>((set) => ({
       };
     }),
 
+  // New action to update decal scale
+  updateDecalScale: (newScale) =>
+    set((state) => {
+      const { activeDecalId } = state.interaction;
+      if (!activeDecalId) return state;
+
+      return {
+        decals: state.decals.map((decal) =>
+          decal.id === activeDecalId ? { ...decal, scale: newScale } : decal,
+        ),
+      };
+    }),
+
+  // New action to update decal rotation
+  updateDecalRotation: (newRotation) =>
+    set((state) => {
+      const { activeDecalId } = state.interaction;
+      if (!activeDecalId) return state;
+
+      return {
+        decals: state.decals.map((decal) =>
+          decal.id === activeDecalId
+            ? { ...decal, rotation: newRotation }
+            : decal,
+        ),
+      };
+    }),
+
   removeDecal: (id) =>
     set((state) => {
       // If removing the active decal, clear the active decal
       const newInteraction =
         state.interaction.activeDecalId === id
-          ? { ...state.interaction, activeDecalId: null, controlPoints: [] }
+          ? {
+              ...state.interaction,
+              activeDecalId: null,
+              activeControlPoint: null,
+              controlPoints: [],
+              startScale: null,
+              startRotation: null,
+              startPointerPosition: null,
+            }
           : state.interaction;
 
       return {
@@ -147,8 +207,12 @@ export const useClothingStore = create<ClothingState>((set) => ({
       interaction: {
         ...state.interaction,
         activeDecalId: id,
+        activeControlPoint: null,
         mode: "idle",
         controlPoints: [],
+        startScale: null,
+        startRotation: null,
+        startPointerPosition: null,
       },
     })),
 
@@ -159,20 +223,27 @@ export const useClothingStore = create<ClothingState>((set) => ({
       ),
     })),
 
-  updateControlPoints: (points) =>
-    set((state) => ({
-      interaction: {
-        ...state.interaction,
-        controlPoints: points,
-      },
-    })),
-
   setInteractionMode: (mode, options = {}) =>
     set((state) => ({
       interaction: {
         ...state.interaction,
         mode,
         dragOffset: options.offset ?? state.interaction.dragOffset,
+        startScale: options.startScale ?? state.interaction.startScale,
+        startRotation: options.startRotation ?? state.interaction.startRotation,
+        activeControlPoint:
+          options.controlPoint ?? state.interaction.activeControlPoint,
+        startPointerPosition:
+          options.startPointerPosition ??
+          state.interaction.startPointerPosition,
+      },
+    })),
+
+  updateControlPoints: (points) =>
+    set((state) => ({
+      interaction: {
+        ...state.interaction,
+        controlPoints: points,
       },
     })),
 }));

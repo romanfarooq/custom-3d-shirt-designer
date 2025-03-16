@@ -4,8 +4,11 @@ import { type ChangeEvent } from "react";
 import { useClothingStore } from "@/lib/store";
 
 export function DecalUploader() {
-  const { interaction, addDecal } = useClothingStore();
-  const isPlacingDecal = interaction.mode === "placing";
+  const {
+    addDecal,
+    interaction: { mode },
+  } = useClothingStore();
+  const isPlacingDecal = mode === "placing";
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
