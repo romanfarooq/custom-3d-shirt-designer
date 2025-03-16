@@ -1,57 +1,11 @@
 "use client";
 
 import { Fragment, useEffect, useRef } from "react";
+import { useClothingStore } from "@/lib/store";
 import { Decal, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
-import { type ControlPointName, useClothingStore } from "@/lib/store";
-import {
-  type Mesh,
-  type Euler,
-  Vector3,
-  Raycaster,
-  TextureLoader,
-  Quaternion,
-} from "three";
-
-const BASE_CONTROL_POINTS: { position: Vector3; type: ControlPointName }[] = [
-  {
-    position: new Vector3(-0.5, -0.5, 0),
-    type: "tl",
-  }, // Top Left
-  {
-    position: new Vector3(0.5, -0.5, 0),
-    type: "tr",
-  }, // Top Right
-  {
-    position: new Vector3(-0.5, 0.5, 0),
-    type: "bl",
-  }, // Bottom Left
-  {
-    position: new Vector3(0.5, 0.5, 0),
-    type: "br",
-  }, // Bottom Right
-  {
-    position: new Vector3(0, -0.5, 0),
-    type: "t",
-  }, // Top
-  {
-    position: new Vector3(0.5, 0, 0),
-    type: "r",
-  }, // Right
-  {
-    position: new Vector3(0, 0.5, 0),
-    type: "b",
-  }, // Bottom
-  {
-    position: new Vector3(-0.5, 0, 0),
-    type: "l",
-  }, // Left
-  {
-    position: new Vector3(0, -0.7, 0),
-    type: "rot",
-  }, // Rotation handle
-];
+import { type Mesh, Vector3, Raycaster, TextureLoader } from "three";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -172,38 +126,6 @@ export function ShirtModel() {
 
     const offset = worldDecalPos.clone().sub(event.point);
     setInteractionMode("dragging", { offset });
-  };
-
-  // Function to calculate control points based on decal properties
-  const calculateControlPoints = (
-    scale: Vector3,
-    position: Vector3,
-    rotation: Euler,
-  ) => {
-    const quaternion = new Quaternion().setFromEuler(rotation);
-
-    return BASE_CONTROL_POINTS.map((point) => {
-      // Clone the base position to avoid mutating the original
-      const basePosition = point.position.clone();
-
-      // Scale the position
-      const scaledPosition = new Vector3(
-        basePosition.x * scale.x,
-        basePosition.y * scale.y,
-        0,
-      );
-
-      // Apply rotation
-      scaledPosition.applyQuaternion(quaternion);
-
-      // Add to decal position
-      const finalPosition = position.clone().add(scaledPosition);
-
-      return {
-        position: finalPosition,
-        type: point.type,
-      };
-    });
   };
 
   useFrame(() => {
