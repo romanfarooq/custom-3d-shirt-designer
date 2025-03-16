@@ -51,6 +51,12 @@ export function DecalControls({ visible }: { visible: boolean }) {
           scale={new Vector3(1, 1, 20)}
           rotation={activeDecal.rotation}
           onPointerDown={(e) => handlePointerDown(e, point.type)}
+          onPointerOver={() => {
+            document.body.style.cursor = point.cursor;
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = "auto";
+          }}
         >
           <meshBasicMaterial
             color="gray"

@@ -25,6 +25,7 @@ export type ControlPointName =
 export interface ControlPoint {
   position: Vector3;
   type: ControlPointName;
+  cursor: string;
 }
 
 export type InteractionMode =
@@ -39,7 +40,11 @@ export interface InteractionState {
   dragOffset: Vector3 | null;
   activeDecalId: string | null;
   activeControlPoint: ControlPointName | null;
-  controlPoints: { position: Vector3; type: ControlPointName }[];
+  controlPoints: {
+    position: Vector3;
+    type: ControlPointName;
+    cursor: string;
+  }[];
   startScale: Vector3 | null;
   startRotation: Euler | null;
   startPointerPosition: Vector3 | null;
@@ -66,12 +71,14 @@ export interface ClothingState {
       startScale?: Vector3 | null;
       startRotation?: Euler | null;
       startPointerPosition?: Vector3 | null;
-      controlPoint?: { position: Vector3; type: ControlPointName }[] | null;
+      controlPoint?:
+        | { position: Vector3; type: ControlPointName; cursor: string }[]
+        | null;
       activeControlPoint?: ControlPointName | null;
     },
   ) => void;
   updateControlPoints: (
-    points: { position: Vector3; type: ControlPointName }[],
+    points: { position: Vector3; type: ControlPointName; cursor: string }[],
   ) => void;
   updateDecalScale: (newScale: Vector3) => void;
   updateDecalRotation: (newRotation: Euler) => void;
@@ -81,16 +88,20 @@ export interface ClothingState {
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
 // Base control points for decal manipulation
-const BASE_CONTROL_POINTS: { position: Vector3; type: ControlPointName }[] = [
-  { position: new Vector3(-0.5, -0.5, 0), type: "tl" },
-  { position: new Vector3(0.5, -0.5, 0), type: "tr" },
-  { position: new Vector3(-0.5, 0.5, 0), type: "bl" },
-  { position: new Vector3(0.5, 0.5, 0), type: "br" },
-  { position: new Vector3(0, -0.5, 0), type: "t" },
-  { position: new Vector3(0.5, 0, 0), type: "r" },
-  { position: new Vector3(0, 0.5, 0), type: "b" },
-  { position: new Vector3(-0.5, 0, 0), type: "l" },
-  { position: new Vector3(0, -0.7, 0), type: "rot" },
+const BASE_CONTROL_POINTS: {
+  position: Vector3;
+  type: ControlPointName;
+  cursor: string;
+}[] = [
+  { position: new Vector3(-0.5, -0.5, 0), type: "tl", cursor: "nwse-resize" },
+  { position: new Vector3(0.5, -0.5, 0), type: "tr", cursor: "nesw-resize" },
+  { position: new Vector3(-0.5, 0.5, 0), type: "bl", cursor: "nesw-resize" },
+  { position: new Vector3(0.5, 0.5, 0), type: "br", cursor: "nwse-resize" },
+  { position: new Vector3(0, -0.5, 0), type: "t", cursor: "ns-resize" },
+  { position: new Vector3(0.5, 0, 0), type: "r", cursor: "ew-resize" },
+  { position: new Vector3(0, 0.5, 0), type: "b", cursor: "ns-resize" },
+  { position: new Vector3(-0.5, 0, 0), type: "l", cursor: "ew-resize" },
+  { position: new Vector3(0, -0.7, 0), type: "rot", cursor: "grab" },
 ];
 
 // Helper function to calculate control points
@@ -121,6 +132,7 @@ const calculateControlPoints = (
     return {
       position: finalPosition,
       type: point.type,
+      cursor: point.cursor,
     };
   });
 };

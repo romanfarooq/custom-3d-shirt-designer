@@ -4,11 +4,7 @@ import { Fragment, useEffect, useRef } from "react";
 import { Decal, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
-import {
-  type ControlPoint,
-  type ControlPointName,
-  useClothingStore,
-} from "@/lib/store";
+import { type ControlPointName, useClothingStore } from "@/lib/store";
 import {
   type Mesh,
   type Euler,
@@ -70,7 +66,6 @@ export function ShirtModel() {
     updateDecalScale,
     setInteractionMode,
     updateDecalPosition,
-    updateControlPoints,
     updateDecalRotation,
     interaction: {
       mode,
@@ -267,22 +262,64 @@ export function ShirtModel() {
 
           // Handle different control points for resizing
           switch (activeControlPoint) {
-            // Corner points - resize in both dimensions
+            // Corner points - resize uniformly in both dimensions to maintain aspect ratio
             case "tl": // Top Left
-              newScale.x = Math.max(1, startScale.x - delta.x * 2);
-              newScale.y = Math.max(1, startScale.y + delta.y * 2); // Fixed: Inverted y-axis delta
+              {
+                // Calculate scale factors for both dimensions
+                const scaleFactorX =
+                  (startScale.x - delta.x * 2) / startScale.x;
+                const scaleFactorY =
+                  (startScale.y + delta.y * 2) / startScale.y;
+                // Use the smaller scale factor to ensure uniform scaling
+                const uniformScaleFactor = Math.max(
+                  Math.min(scaleFactorX, scaleFactorY),
+                  0.1,
+                );
+                newScale.x = Math.max(1, startScale.x * uniformScaleFactor);
+                newScale.y = Math.max(1, startScale.y * uniformScaleFactor);
+              }
               break;
             case "tr": // Top Right
-              newScale.x = Math.max(1, startScale.x + delta.x * 2);
-              newScale.y = Math.max(1, startScale.y + delta.y * 2); // Fixed: Inverted y-axis delta
+              {
+                const scaleFactorX =
+                  (startScale.x + delta.x * 2) / startScale.x;
+                const scaleFactorY =
+                  (startScale.y + delta.y * 2) / startScale.y;
+                const uniformScaleFactor = Math.max(
+                  Math.min(scaleFactorX, scaleFactorY),
+                  0.1,
+                );
+                newScale.x = Math.max(1, startScale.x * uniformScaleFactor);
+                newScale.y = Math.max(1, startScale.y * uniformScaleFactor);
+              }
               break;
             case "bl": // Bottom Left
-              newScale.x = Math.max(1, startScale.x - delta.x * 2);
-              newScale.y = Math.max(1, startScale.y - delta.y * 2); // Fixed: Inverted y-axis delta
+              {
+                const scaleFactorX =
+                  (startScale.x - delta.x * 2) / startScale.x;
+                const scaleFactorY =
+                  (startScale.y - delta.y * 2) / startScale.y;
+                const uniformScaleFactor = Math.max(
+                  Math.min(scaleFactorX, scaleFactorY),
+                  0.1,
+                );
+                newScale.x = Math.max(1, startScale.x * uniformScaleFactor);
+                newScale.y = Math.max(1, startScale.y * uniformScaleFactor);
+              }
               break;
             case "br": // Bottom Right
-              newScale.x = Math.max(1, startScale.x + delta.x * 2);
-              newScale.y = Math.max(1, startScale.y - delta.y * 2); // Fixed: Inverted y-axis delta
+              {
+                const scaleFactorX =
+                  (startScale.x + delta.x * 2) / startScale.x;
+                const scaleFactorY =
+                  (startScale.y - delta.y * 2) / startScale.y;
+                const uniformScaleFactor = Math.max(
+                  Math.min(scaleFactorX, scaleFactorY),
+                  0.1,
+                );
+                newScale.x = Math.max(1, startScale.x * uniformScaleFactor);
+                newScale.y = Math.max(1, startScale.y * uniformScaleFactor);
+              }
               break;
 
             // Edge points - resize in one dimension
@@ -351,9 +388,6 @@ export function ShirtModel() {
         }
       }
     }
-
-    // We no longer need to calculate control points here as they're updated immediately in the store functions
-    // This improves performance and prevents control points from lagging behind during resize operations
   });
 
   return (
