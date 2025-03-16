@@ -18,16 +18,6 @@ export function DecalControls({ visible }: { visible: boolean }) {
 
   if (!visible || controlPoints.length === 0 || !activeDecal) return null;
 
-  const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation();
-    setInteractionMode("idle", {
-      controlPoint: null,
-      startRotation: null,
-      activeControlPoint: null,
-      startPointerPosition: null,
-    });
-  };
-
   const handlePointerDown = (
     event: ThreeEvent<PointerEvent>,
     controlPoint: ControlPointName,
@@ -63,7 +53,6 @@ export function DecalControls({ visible }: { visible: boolean }) {
           rotation={[Math.PI / 2, 0, 0]}
           scale={new Vector3(1, 1, 20)}
           position={point.position}
-          onPointerUp={handlePointerUp}
           onPointerDown={(e) => handlePointerDown(e, point.type)}
         >
           <meshBasicMaterial

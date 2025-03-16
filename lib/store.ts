@@ -36,7 +36,6 @@ export type InteractionMode =
 
 export interface InteractionState {
   mode: InteractionMode;
-  dragOffset: Vector3 | null;
   activeDecalId: string | null;
   activeControlPoint: ControlPointName | null;
   controlPoints: ControlPoint[];
@@ -84,7 +83,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
   decals: [],
   interaction: {
     mode: "idle",
-    dragOffset: null,
     activeDecalId: null,
     activeControlPoint: null,
     controlPoints: [],
@@ -113,7 +111,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
       ],
       interaction: {
         mode: "placing",
-        dragOffset: null,
         activeDecalId: newId,
         activeControlPoint: null,
         controlPoints: [],
@@ -228,7 +225,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
       interaction: {
         ...state.interaction,
         mode,
-        dragOffset: options.offset ?? state.interaction.dragOffset,
         startScale: options.startScale ?? state.interaction.startScale,
         startRotation: options.startRotation ?? state.interaction.startRotation,
         activeControlPoint:
