@@ -117,11 +117,11 @@ export function ShirtModel() {
     setActiveDecal(decalId);
 
     // Find the decal
-    const decal = decals.find((d) => d.id === decalId);
-    if (!decal?.position) return;
+    const activeDecal = decals.find((d) => d.id === decalId);
+    if (!activeDecal?.position) return;
 
     // Calculate the offset between the pointer hit point and the decal position
-    const worldDecalPos = new Vector3().copy(decal.position);
+    const worldDecalPos = activeDecal.position.clone();
     meshRef.current.localToWorld(worldDecalPos);
 
     const offset = worldDecalPos.clone().sub(event.point);
