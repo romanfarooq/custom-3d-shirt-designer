@@ -1,11 +1,61 @@
 "use client";
 
 import { Fragment, useEffect, useRef } from "react";
-import { useClothingStore } from "@/lib/store";
 import { Decal, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
-import { type Mesh, Vector3, Raycaster, TextureLoader } from "three";
+import {
+  type ControlPoint,
+  type ControlPointName,
+  useClothingStore,
+} from "@/lib/store";
+import {
+  type Mesh,
+  type Euler,
+  Vector3,
+  Raycaster,
+  TextureLoader,
+  Quaternion,
+} from "three";
+
+const BASE_CONTROL_POINTS: { position: Vector3; type: ControlPointName }[] = [
+  {
+    position: new Vector3(-0.5, -0.5, 0),
+    type: "tl",
+  }, // Top Left
+  {
+    position: new Vector3(0.5, -0.5, 0),
+    type: "tr",
+  }, // Top Right
+  {
+    position: new Vector3(-0.5, 0.5, 0),
+    type: "bl",
+  }, // Bottom Left
+  {
+    position: new Vector3(0.5, 0.5, 0),
+    type: "br",
+  }, // Bottom Right
+  {
+    position: new Vector3(0, -0.5, 0),
+    type: "t",
+  }, // Top
+  {
+    position: new Vector3(0.5, 0, 0),
+    type: "r",
+  }, // Right
+  {
+    position: new Vector3(0, 0.5, 0),
+    type: "b",
+  }, // Bottom
+  {
+    position: new Vector3(-0.5, 0, 0),
+    type: "l",
+  }, // Left
+  {
+    position: new Vector3(0, -0.7, 0),
+    type: "rot",
+  }, // Rotation handle
+];
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -19,6 +69,7 @@ export function ShirtModel() {
     setActiveDecal,
     updateDecalPosition,
     setInteractionMode,
+    updateControlPoints,
   } = useClothingStore();
 
   const { camera, pointer } = useThree();
@@ -90,7 +141,7 @@ export function ShirtModel() {
     if (!decal?.position) return;
 
     // Calculate the offset between the pointer hit point and the decal position
-    const worldDecalPos = new Vector3(...decal.position);
+    const worldDecalPos = new Vector3().copy(decal.position);
     meshRef.current.localToWorld(worldDecalPos);
 
     const offset = worldDecalPos.clone().sub(event.point);
@@ -102,7 +153,6 @@ export function ShirtModel() {
     setInteractionMode("idle");
   };
 
-  // Update decal position during dragging (for smooth updates)
   useFrame(() => {
     if (!meshRef.current) return;
 
@@ -128,7 +178,55 @@ export function ShirtModel() {
         updateDecalPosition(localPosition);
       }
     }
+
+    // Calculate control points for active decal
+    if (activeDecalId) {
+      const activeDecal = decals.find((d) => d.id === activeDecalId);
+      if (activeDecal?.position) {
+        // Calculate control points based on the active decal's properties
+        const calculatedPoints = calculateControlPoints(
+          activeDecal.scale,
+          activeDecal.position,
+          activeDecal.rotation,
+        );
+
+        // Update the control points in the store
+        updateControlPoints(calculatedPoints);
+      }
+    }
   });
+
+  // Function to calculate control points based on decal properties
+  const calculateControlPoints = (
+    scale: Vector3,
+    position: Vector3,
+    rotation: Euler,
+  ): ControlPoint[] => {
+    const quaternion = new Quaternion().setFromEuler(rotation);
+
+    return BASE_CONTROL_POINTS.map((point) => {
+      // Clone the base position to avoid mutating the original
+      const basePosition = point.position.clone();
+
+      // Scale the position
+      const scaledPosition = new Vector3(
+        basePosition.x * scale.x,
+        basePosition.y * scale.y,
+        0,
+      );
+
+      // Apply rotation
+      scaledPosition.applyQuaternion(quaternion);
+
+      // Add to decal position
+      const finalPosition = position.clone().add(scaledPosition);
+
+      return {
+        position: finalPosition,
+        type: point.type,
+      };
+    });
+  };
 
   return (
     <mesh
@@ -162,16 +260,14 @@ export function ShirtModel() {
                   opacity={isDragging && activeDecalId === decal.id ? 0.8 : 1}
                 />
               </Decal>
-              {activeDecalId === decal.id && (
-                <DecalControls
-                  scale={decal.scale}
-                  rotation={decal.rotation}
-                  position={decal.position}
-                />
-              )}
             </Fragment>
           ),
       )}
+
+      {/* Single DecalControls component that uses pre-calculated points */}
+      <DecalControls
+        visible={!!activeDecalId && !isDragging && !isPlacingDecal}
+      />
     </mesh>
   );
 }

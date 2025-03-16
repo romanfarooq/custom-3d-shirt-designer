@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { type Texture, Euler, Vector3 } from "three";
 
-// Combined interface for decal properties
 export interface DecalItem {
   id: string;
   image: string;
@@ -12,18 +11,29 @@ export interface DecalItem {
   position: Vector3 | null;
 }
 
-// New interface for interaction state
-export type InteractionMode =
-  | "idle"
-  | "placing"
-  | "dragging"
-  | "resizing"
-  | "rotating";
+export type ControlPointName =
+  | "tl" // Top Left
+  | "tr" // Top Right
+  | "bl" // Bottom Left
+  | "br" // Bottom Right
+  | "t" // Top
+  | "r" // Right
+  | "b" // Bottom
+  | "l" // Left
+  | "rot"; // Rotation handle
+
+export interface ControlPoint {
+  position: Vector3;
+  type: ControlPointName;
+}
+
+export type InteractionMode = "idle" | "placing" | "dragging";
 
 export interface InteractionState {
   mode: InteractionMode;
   dragOffset: Vector3 | null;
   activeDecalId: string | null;
+  controlPoints: ControlPoint[];
 }
 
 export interface ClothingState {
@@ -40,6 +50,7 @@ export interface ClothingState {
   removeDecal: (id: string) => void;
   setActiveDecal: (id: string | null) => void;
   setTexture: (id: string, texture: Texture) => void;
+  updateControlPoints: (points: ControlPoint[]) => void;
   setInteractionMode: (
     mode: InteractionMode,
     options?: {
@@ -59,6 +70,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
     mode: "idle",
     dragOffset: null,
     activeDecalId: null,
+    controlPoints: [],
   },
 
   // Actions to update state
@@ -83,6 +95,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
         mode: "placing",
         dragOffset: null,
         activeDecalId: newId,
+        controlPoints: [],
       },
     }));
   },
@@ -120,7 +133,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
       // If removing the active decal, clear the active decal
       const newInteraction =
         state.interaction.activeDecalId === id
-          ? { ...state.interaction, activeDecalId: null }
+          ? { ...state.interaction, activeDecalId: null, controlPoints: [] }
           : state.interaction;
 
       return {
@@ -135,6 +148,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
         ...state.interaction,
         activeDecalId: id,
         mode: "idle",
+        controlPoints: [],
       },
     })),
 
@@ -143,6 +157,14 @@ export const useClothingStore = create<ClothingState>((set) => ({
       decals: state.decals.map((decal) =>
         decal.id === id ? { ...decal, texture } : decal,
       ),
+    })),
+
+  updateControlPoints: (points) =>
+    set((state) => ({
+      interaction: {
+        ...state.interaction,
+        controlPoints: points,
+      },
     })),
 
   setInteractionMode: (mode, options = {}) =>
