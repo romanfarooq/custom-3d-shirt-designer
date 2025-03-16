@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 import { useClothingStore } from "@/lib/store";
 
 export function DecalInfo() {
@@ -30,8 +30,8 @@ export function DecalInfo() {
             <Image
               src={decal.image}
               alt="Decal"
-              height={64}
-              width={64}
+              height={50}
+              width={50}
               className="aspect-square h-full w-full object-contain"
             />
             <button

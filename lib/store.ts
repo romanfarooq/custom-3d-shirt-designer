@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Euler, Texture, Vector3 } from "three";
+import { type Texture, Euler, Vector3 } from "three";
 
 // Combined interface for decal properties
 export interface DecalItem {
@@ -75,7 +75,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
           aspect,
           texture: null,
           position: null,
-          scale: new Vector3(10 * aspect, 10, 10),
+          scale: new Vector3(10 * aspect, 10, 20),
           rotation: new Euler(Math.PI / 2, 0, 0),
         },
       ],

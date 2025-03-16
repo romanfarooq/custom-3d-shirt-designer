@@ -3,7 +3,7 @@
 import { cn, isLightColor } from "@/lib/utils";
 import { useClothingStore } from "@/lib/store";
 
-const colorOptions = [
+const COLOR_OPTIONS = [
   { name: "White", value: "#F3F4F6" },
   { name: "Blue", value: "#3B82F6" },
   { name: "Red", value: "#EF4444" },
@@ -20,7 +20,7 @@ export function ColorPicker() {
     <div className="mb-8">
       <h3 className="mb-4 text-lg font-medium text-gray-800">Choose Color</h3>
       <div className="flex flex-wrap gap-3">
-        {colorOptions.map((colorOption) => (
+        {COLOR_OPTIONS.map((colorOption) => (
           <button
             key={colorOption.value}
             className={cn(
@@ -44,7 +44,7 @@ export function ColorPicker() {
           <div
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-sm border-2 transition-all hover:scale-110",
-              colorOptions.some((opt) => opt.value === color)
+              COLOR_OPTIONS.some((opt) => opt.value === color)
                 ? "border-gray-200"
                 : "border-accent",
             )}

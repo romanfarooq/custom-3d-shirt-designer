@@ -1,12 +1,13 @@
 "use client";
 
+import { type ChangeEvent } from "react";
 import { useClothingStore } from "@/lib/store";
 
 export function DecalUploader() {
   const { interaction, addDecal } = useClothingStore();
   const isPlacingDecal = interaction.mode === "placing";
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
