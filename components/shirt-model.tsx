@@ -74,6 +74,7 @@ export function ShirtModel() {
     updateDecalRotation,
     interaction: {
       mode,
+      dragOffset,
       activeDecalId,
       activeControlPoint,
       startScale,
@@ -128,9 +129,10 @@ export function ShirtModel() {
       if (isDragging || isResizing || isRotating) {
         // Reset all interaction values when ending any operation
         setInteractionMode("idle", {
-          controlPoint: null,
+          offset: null,
           startScale: null,
           startRotation: null,
+          activeControlPoint: null,
           startPointerPosition: null,
         });
       }
@@ -163,11 +165,16 @@ export function ShirtModel() {
 
     if (!meshRef.current) return;
 
-    // Set this decal as active
-    setActiveDecal(decalId);
+    // Find the decal
+    const decal = decals.find((d) => d.id === decalId);
+    if (!decal?.position) return;
 
-    // Set interaction mode to "dragging"
-    setInteractionMode("dragging");
+    // Calculate the offset between the pointer hit point and the decal position
+    const worldDecalPos = new Vector3().copy(decal.position);
+    meshRef.current.localToWorld(worldDecalPos);
+
+    const offset = worldDecalPos.clone().sub(event.point);
+    setInteractionMode("dragging", { offset });
   };
 
   // Function to calculate control points based on decal properties
@@ -206,7 +213,7 @@ export function ShirtModel() {
     if (!meshRef.current) return;
 
     // Handle dragging
-    if (isDragging && activeDecalId) {
+    if (isDragging && dragOffset && activeDecalId) {
       // Cast a ray from the camera through the mouse position
       dragRaycaster.current.setFromCamera(pointer, camera);
 
@@ -218,7 +225,7 @@ export function ShirtModel() {
 
       if (intersects.length > 0) {
         // Get the intersection point and add the offset
-        const hitPoint = intersects[0].point.clone();
+        const hitPoint = intersects[0].point.clone().add(dragOffset);
 
         // Convert to local space of the shirt
         const localPosition = meshRef.current.worldToLocal(hitPoint);
