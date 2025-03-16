@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { ShirtModel } from "@/components/shirt-model";
 import { DecalInfo } from "@/components/decal-Info";
 import { ColorPicker } from "@/components/color-picker";
-import { DecalUploader } from "@/components/decal-uploader";
+import { TextDecalInput } from "@/components/text-decal-input";
+import { ImageDecalUploader } from "@/components/image-decal-uploader";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 
 export default function Home() {
@@ -103,9 +104,10 @@ export default function Home() {
               Customize Your T-Shirt
             </h2>
 
-            <DecalUploader />
-            <DecalInfo />
+            <ImageDecalUploader />
+            <TextDecalInput />
             <ColorPicker />
+            <DecalInfo />
           </div>
 
           <div className="mt-auto pt-4 text-center">

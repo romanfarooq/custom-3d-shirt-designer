@@ -1,11 +1,12 @@
 "use client";
 
 import { type ChangeEvent } from "react";
+import { Label } from "@/components/ui/label";
 import { useClothingStore } from "@/lib/store";
 
-export function DecalUploader() {
+export function ImageDecalUploader() {
   const {
-    addDecal,
+    addImageDecal,
     interaction: { mode },
   } = useClothingStore();
   const isPlacingDecal = mode === "placing";
@@ -22,7 +23,7 @@ export function DecalUploader() {
       img.onload = () => {
         const aspect = img.width / img.height;
         const objectUrl = URL.createObjectURL(file);
-        addDecal(objectUrl, aspect);
+        addImageDecal(objectUrl, aspect);
       };
     };
     reader.readAsDataURL(file);
@@ -30,9 +31,9 @@ export function DecalUploader() {
 
   return (
     <div className="mb-8">
-      <h3 className="mb-4 text-lg font-medium text-gray-800">Upload Decal</h3>
+      <h3 className="mb-4 text-lg font-medium text-gray-800">Add Image</h3>
       <div className="flex flex-col gap-3">
-        <label className="hover:border-accent flex h-12 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors">
+        <Label className="hover:border-accent flex h-10 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors">
           <input
             type="file"
             accept="image/*"
@@ -40,10 +41,10 @@ export function DecalUploader() {
             className="hidden"
           />
           <span className="text-gray-500">Click to Upload Image</span>
-        </label>
+        </Label>
 
         {isPlacingDecal && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 italic">
             Click on the shirt surface to place image
           </p>
         )}

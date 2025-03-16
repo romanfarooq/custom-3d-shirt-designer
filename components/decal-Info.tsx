@@ -18,37 +18,42 @@ export function DecalInfo() {
 
   return (
     <div className="mb-8">
-      <h3 className="mb-4 text-lg font-medium text-gray-800">Manage Decals</h3>
+      <h3 className="mb-4 text-lg font-medium text-gray-800">Manage Images</h3>
 
       {/* Decal Gallery */}
       <div className="mb-4 grid grid-cols-4 gap-2">
-        {decals.map((decal) => (
-          <div
-            key={decal.id}
-            className={cn(
-              "relative cursor-pointer rounded border-2 p-1",
-              activeDecalId === decal.id ? "border-black" : "border-gray-200",
-            )}
-            onClick={() => setActiveDecal(decal.id)}
-          >
-            <Image
-              src={decal.image}
-              alt="Decal"
-              height={50}
-              width={50}
-              className="aspect-square h-full w-full object-contain"
-            />
-            <button
-              className="bg-destructive hover:bg-destructive/80 absolute -top-2 -right-2 cursor-pointer rounded-full p-1 text-white"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeDecal(decal.id);
-              }}
-            >
-              <Trash2 className="h-3 w-3" />
-            </button>
-          </div>
-        ))}
+        {decals.map(
+          (decal) =>
+            decal.type === "image" && (
+              <div
+                key={decal.id}
+                className={cn(
+                  "relative cursor-pointer rounded border-2 p-1",
+                  activeDecalId === decal.id
+                    ? "border-black"
+                    : "border-gray-200",
+                )}
+                onClick={() => setActiveDecal(decal.id)}
+              >
+                <Image
+                  src={decal.image!}
+                  alt="Decal"
+                  height={50}
+                  width={50}
+                  className="aspect-square h-full w-full object-contain"
+                />
+                <button
+                  className="bg-destructive hover:bg-destructive/80 absolute -top-2 -right-2 cursor-pointer rounded-full p-1 text-white"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeDecal(decal.id);
+                  }}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ),
+        )}
       </div>
 
       {isPlacingDecal && (

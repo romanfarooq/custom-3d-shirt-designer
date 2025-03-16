@@ -3,12 +3,15 @@ import { type Texture, Euler, Vector3, Quaternion } from "three";
 
 export interface DecalItem {
   id: string;
-  image: string;
-  aspect: number;
+  image: string | null;
+  aspect: number | null;
   texture: Texture | null;
   scale: Vector3;
   rotation: Euler;
   position: Vector3 | null;
+  type: "image" | "text";
+  text: string | null;
+  fontFamily: string | null;
 }
 
 export type ControlPointName =
@@ -58,7 +61,8 @@ export interface ClothingState {
 
   // Actions
   setColor: (color: string) => void;
-  addDecal: (url: string, aspect: number) => void;
+  addImageDecal: (url: string, aspect: number) => void;
+  addTextDecal: (text: string, fontFamily: string) => void;
   placeDecal: (position: Vector3 | null) => void;
   updateDecalPosition: (position: Vector3) => void;
   removeDecal: (id: string) => void;
@@ -155,7 +159,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
   // Actions to update state
   setColor: (color) => set({ color }),
 
-  addDecal: (image, aspect) => {
+  addImageDecal: (image, aspect) => {
     const newId = generateId();
     set((state) => ({
       decals: [
@@ -168,6 +172,40 @@ export const useClothingStore = create<ClothingState>((set) => ({
           position: null,
           scale: new Vector3(10 * aspect, 10, 20),
           rotation: new Euler(Math.PI / 2, 0, 0),
+          type: "image",
+          text: null,
+          fontFamily: null,
+        },
+      ],
+      interaction: {
+        mode: "placing",
+        dragOffset: null,
+        activeDecalId: newId,
+        activeControlPoint: null,
+        controlPoints: [],
+        startScale: null,
+        startRotation: null,
+        startPointerPosition: null,
+      },
+    }));
+  },
+
+  addTextDecal: (text, fontFamily) => {
+    const newId = generateId();
+    set((state) => ({
+      decals: [
+        ...state.decals,
+        {
+          id: newId,
+          image: null,
+          aspect: null,
+          texture: null,
+          position: null,
+          scale: new Vector3(5, 5, 20),
+          rotation: new Euler(Math.PI / 2, 0, 0),
+          type: "text",
+          text,
+          fontFamily,
         },
       ],
       interaction: {
