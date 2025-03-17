@@ -81,9 +81,6 @@ export interface ClothingState {
       activeControlPoint?: ControlPointName | null;
     },
   ) => void;
-  updateControlPoints: (
-    points: { position: Vector3; type: ControlPointName; cursor: string }[],
-  ) => void;
   updateDecalScale: (newScale: Vector3) => void;
   updateDecalRotation: (newRotation: Euler) => void;
 }
@@ -379,14 +376,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
         startPointerPosition:
           options.startPointerPosition ??
           state.interaction.startPointerPosition,
-      },
-    })),
-
-  updateControlPoints: (points) =>
-    set((state) => ({
-      interaction: {
-        ...state.interaction,
-        controlPoints: points,
       },
     })),
 }));

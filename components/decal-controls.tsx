@@ -6,10 +6,11 @@ import { type ThreeEvent } from "@react-three/fiber";
 import { type ControlPointName, useClothingStore } from "@/lib/store";
 
 export function DecalControls({ visible }: { visible: boolean }) {
-  const { decals, interaction, setInteractionMode } = useClothingStore();
-
-  const activeDecalId = interaction.activeDecalId;
-  const controlPoints = interaction.controlPoints;
+  const {
+    decals,
+    setInteractionMode,
+    interaction: { activeDecalId, controlPoints },
+  } = useClothingStore();
 
   const activeDecal = decals.find((d) => d.id === activeDecalId);
 
