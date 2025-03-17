@@ -61,12 +61,6 @@ export function DecalInfo() {
           Click on the shirt surface to place image or text
         </p>
       )}
-
-      {activeDecal && !isPlacingDecal && (
-        <p className="text-sm text-gray-500">
-          Drag the handles to resize or rotate the image or text
-        </p>
-      )}
     </div>
   );
 }

@@ -75,8 +75,9 @@ export default function Home() {
             <OrbitControls
               ref={orbitControlsRef}
               enablePan={false}
-              enableZoom={!isDragging && !isRotating && !isResizing}
-              enableRotate={!isDragging && !isRotating && !isResizing}
+              enableZoom={true}
+              enableRotate={true}
+              enabled={!isDragging && !isRotating && !isResizing}
               minPolarAngle={Math.PI / 6} // Limit upward rotation (30 degrees from top)
               maxPolarAngle={Math.PI / 2} // Limit downward rotation (90 degrees - horizontal view)
               minDistance={25} // Prevent zooming too close/inside the shirt

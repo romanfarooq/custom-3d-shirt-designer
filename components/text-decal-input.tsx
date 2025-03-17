@@ -30,7 +30,7 @@ export function TextDecalInput() {
   };
 
   return (
-    <div className="mb-8">
+    <div className="mb-4">
       <h3 className="mb-4 text-lg font-medium text-gray-800">Add Text</h3>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
@@ -79,6 +79,12 @@ export function TextDecalInput() {
           </p>
         )}
       </div>
+
+       {activeDecal && !isPlacingDecal && (
+        <p className="text-sm mt-4 text-gray-500">
+          Drag the handles to resize or rotate the image or text
+        </p>
+      )}
     </div>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 
-import { Fragment, useEffect, useRef } from "react";
-import { Decal, Text, useGLTF } from "@react-three/drei";
+import { Fragment, useRef, useEffect } from "react";
+import { Decal, useGLTF } from "@react-three/drei";
+import { generateTextTexture } from "@/lib/utils";
 import { DecalControls } from "@/components/decal-controls";
 import { type DecalItem, useClothingStore } from "@/lib/store";
-import { type Mesh, Raycaster, TextureLoader } from "three" ;
+import { type Mesh, Raycaster, TextureLoader } from "three";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
 
 export function ShirtModel() {
@@ -324,21 +325,23 @@ export function ShirtModel() {
         (decal) =>
           decal.position && (
             <Fragment key={decal.id}>
-              {decal.type === "text" ? (
+              {decal.type === "text" && decal.text ? (
+                // Render text decal
                 <Decal
                   scale={decal.scale}
                   position={decal.position}
                   rotation={decal.rotation}
                   onPointerDown={(e) => handlePointerDown(e, decal)}
                 >
-                  <meshStandardMaterial
+                  <meshBasicMaterial
+                    map={generateTextTexture(decal.text)}
                     transparent
                     polygonOffset
                     polygonOffsetFactor={-1}
-                    opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
-                  >
-                    <Text color="black">{decal.text}</Text>
-                  </meshStandardMaterial>
+                    opacity={
+                      isDragging && activeDecal?.id === decal.id ? 0.8 : 1
+                    }
+                  />
                 </Decal>
               ) : (
                 // Render image decal
