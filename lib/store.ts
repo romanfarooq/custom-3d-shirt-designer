@@ -41,7 +41,7 @@ export type InteractionMode =
 export interface InteractionState {
   mode: InteractionMode;
   dragOffset: Vector3 | null;
-  activeDecalId: string | null;
+  activeDecal: DecalItem | null;
   activeControlPoint: ControlPointName | null;
   controlPoints: {
     position: Vector3;
@@ -66,7 +66,7 @@ export interface ClothingState {
   placeDecal: (position: Vector3 | null) => void;
   updateDecalPosition: (position: Vector3) => void;
   removeDecal: (id: string) => void;
-  setActiveDecal: (id: string | null) => void;
+  setActiveDecal: (activeDecal: DecalItem | null) => void;
   setTexture: (id: string, texture: Texture) => void;
   setInteractionMode: (
     mode: InteractionMode,
@@ -145,7 +145,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
   interaction: {
     mode: "idle",
     dragOffset: null,
-    activeDecalId: null,
+    activeDecal: null,
     activeControlPoint: null,
     controlPoints: [],
     startScale: null,
@@ -158,77 +158,83 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
   addImageDecal: (image, aspect) => {
     const newId = generateId();
-    set((state) => ({
-      decals: [
-        ...state.decals,
-        {
-          id: newId,
-          image,
-          aspect,
-          texture: null,
-          position: null,
-          scale: new Vector3(10 * aspect, 10, 20),
-          rotation: new Euler(Math.PI / 2, 0, 0),
-          type: "image",
-          text: null,
-          fontFamily: null,
+    set((state) => {
+      const newDecal: DecalItem = {
+        id: newId,
+        image,
+        aspect,
+        texture: null,
+        position: null,
+        scale: new Vector3(10 * aspect, 10, 20),
+        rotation: new Euler(Math.PI / 2, 0, 0),
+        type: "image",
+        text: null,
+        fontFamily: null,
+      };
+
+      return {
+        decals: [...state.decals, newDecal],
+        interaction: {
+          mode: "placing",
+          dragOffset: null,
+          activeDecal: newDecal,
+          activeControlPoint: null,
+          controlPoints: [],
+          startScale: null,
+          startRotation: null,
+          startPointerPosition: null,
         },
-      ],
-      interaction: {
-        mode: "placing",
-        dragOffset: null,
-        activeDecalId: newId,
-        activeControlPoint: null,
-        controlPoints: [],
-        startScale: null,
-        startRotation: null,
-        startPointerPosition: null,
-      },
-    }));
+      };
+    });
   },
 
   addTextDecal: (text, fontFamily) => {
     const newId = generateId();
-    set((state) => ({
-      decals: [
-        ...state.decals,
-        {
-          id: newId,
-          image: null,
-          aspect: null,
-          texture: null,
-          position: null,
-          scale: new Vector3(5, 5, 20),
-          rotation: new Euler(Math.PI / 2, 0, 0),
-          type: "text",
-          text,
-          fontFamily,
+    set((state) => {
+      const newDecal: DecalItem = {
+        id: newId,
+        image: null,
+        aspect: null,
+        texture: null,
+        position: null,
+        scale: new Vector3(5, 5, 20),
+        rotation: new Euler(Math.PI / 2, 0, 0),
+        type: "text",
+        text,
+        fontFamily,
+      };
+
+      return {
+        decals: [...state.decals, newDecal],
+        interaction: {
+          mode: "placing",
+          dragOffset: null,
+          activeDecal: newDecal,
+          activeControlPoint: null,
+          controlPoints: [],
+          startScale: null,
+          startRotation: null,
+          startPointerPosition: null,
         },
-      ],
-      interaction: {
-        mode: "placing",
-        dragOffset: null,
-        activeDecalId: newId,
-        activeControlPoint: null,
-        controlPoints: [],
-        startScale: null,
-        startRotation: null,
-        startPointerPosition: null,
-      },
-    }));
+      };
+    });
   },
 
   placeDecal: (position) =>
     set((state) => {
-      const { activeDecalId } = state.interaction;
-      if (!activeDecalId) return state;
+      const { activeDecal } = state.interaction;
+      if (!activeDecal) return state;
 
       return {
         decals: state.decals.map((decal) =>
-          decal.id === activeDecalId ? { ...decal, position } : decal,
+          decal.id === activeDecal.id ? { ...decal, position } : decal,
         ),
         interaction: {
           ...state.interaction,
+          activeDecal: {
+          ...activeDecal,
+            position,
+          },
           mode: "idle",
         },
       };
@@ -236,11 +242,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
   updateDecalPosition: (position) =>
     set((state) => {
-      const { activeDecalId } = state.interaction;
-      if (!activeDecalId) return state;
-
-      // Find the active decal to get its current properties
-      const activeDecal = state.decals.find((d) => d.id === activeDecalId);
+      const { activeDecal } = state.interaction;
       if (!activeDecal) return state;
 
       // Calculate new control points immediately using the helper function
@@ -252,10 +254,14 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
       return {
         decals: state.decals.map((decal) =>
-          decal.id === activeDecalId ? { ...decal, position } : decal,
+          decal.id === activeDecal.id ? { ...decal, position } : decal,
         ),
         interaction: {
           ...state.interaction,
+          activeDecal: {
+           ...activeDecal,
+            position,
+          },
           controlPoints: newControlPoints,
         },
       };
@@ -264,11 +270,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
   // New action to update decal scale
   updateDecalScale: (newScale) =>
     set((state) => {
-      const { activeDecalId } = state.interaction;
-      if (!activeDecalId) return state;
-
-      // Find the active decal to get its current properties
-      const activeDecal = state.decals.find((d) => d.id === activeDecalId);
+      const { activeDecal } = state.interaction;
       if (!activeDecal?.position) return state;
 
       // Calculate new control points immediately using the helper function
@@ -280,10 +282,14 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
       return {
         decals: state.decals.map((decal) =>
-          decal.id === activeDecalId ? { ...decal, scale: newScale } : decal,
+          decal.id === activeDecal.id ? { ...decal, scale: newScale } : decal,
         ),
         interaction: {
           ...state.interaction,
+          activeDecal: {
+           ...activeDecal,
+            scale: newScale,
+          },
           controlPoints: newControlPoints,
         },
       };
@@ -292,11 +298,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
   // New action to update decal rotation
   updateDecalRotation: (newRotation) =>
     set((state) => {
-      const { activeDecalId } = state.interaction;
-      if (!activeDecalId) return state;
-
-      // Find the active decal to get its current properties
-      const activeDecal = state.decals.find((d) => d.id === activeDecalId);
+      const { activeDecal } = state.interaction;
       if (!activeDecal?.position) return state;
 
       // Calculate new control points immediately using the helper function
@@ -308,12 +310,16 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
       return {
         decals: state.decals.map((decal) =>
-          decal.id === activeDecalId
+          decal.id === activeDecal.id
             ? { ...decal, rotation: newRotation }
             : decal,
         ),
         interaction: {
           ...state.interaction,
+          activeDecal: {
+            ...activeDecal,
+            rotation: newRotation,
+          },
           controlPoints: newControlPoints,
         },
       };
@@ -323,10 +329,10 @@ export const useClothingStore = create<ClothingState>((set) => ({
     set((state) => {
       // If removing the active decal, clear the active decal
       const newInteraction =
-        state.interaction.activeDecalId === id
+        state.interaction.activeDecal?.id === id
           ? {
               ...state.interaction,
-              activeDecalId: null,
+              activeDecal: null,
               activeControlPoint: null,
               controlPoints: [],
               startScale: null,
@@ -341,19 +347,21 @@ export const useClothingStore = create<ClothingState>((set) => ({
       };
     }),
 
-  setActiveDecal: (id) =>
-    set((state) => ({
-      interaction: {
-        ...state.interaction,
-        activeDecalId: id,
-        activeControlPoint: null,
-        mode: "idle",
-        controlPoints: [],
-        startScale: null,
-        startRotation: null,
-        startPointerPosition: null,
-      },
-    })),
+  setActiveDecal: (activeDecal: DecalItem | null) =>
+    set((state) => {
+      return {
+        interaction: {
+          ...state.interaction,
+          activeDecal,
+          activeControlPoint: null,
+          mode: "idle",
+          controlPoints: [],
+          startScale: null,
+          startRotation: null,
+          startPointerPosition: null,
+        },
+      };
+    }),
 
   setTexture: (id, texture) =>
     set((state) => ({

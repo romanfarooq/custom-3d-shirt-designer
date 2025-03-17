@@ -7,7 +7,7 @@ import { useClothingStore } from "@/lib/store";
 export function ImageDecalUploader() {
   const {
     addImageDecal,
-    interaction: { mode },
+    interaction: { activeDecal, mode },
   } = useClothingStore();
   const isPlacingDecal = mode === "placing";
 
@@ -43,7 +43,7 @@ export function ImageDecalUploader() {
           <span className="text-gray-500">Click to Upload Image</span>
         </Label>
 
-        {isPlacingDecal && (
+        {isPlacingDecal && activeDecal?.type === "image" && (
           <p className="text-sm text-gray-500 italic">
             Click on the shirt surface to place image
           </p>

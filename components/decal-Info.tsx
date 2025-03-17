@@ -10,7 +10,7 @@ export function DecalInfo() {
     decals,
     removeDecal,
     setActiveDecal,
-    interaction: { activeDecalId, mode },
+    interaction: { activeDecal, mode },
   } = useClothingStore();
   const isPlacingDecal = mode === "placing";
 
@@ -29,11 +29,11 @@ export function DecalInfo() {
                 key={decal.id}
                 className={cn(
                   "relative cursor-pointer rounded border-2 p-1",
-                  activeDecalId === decal.id
+                  activeDecal?.id === decal.id
                     ? "border-black"
                     : "border-gray-200",
                 )}
-                onClick={() => setActiveDecal(decal.id)}
+                onClick={() => setActiveDecal(decal)}
               >
                 <Image
                   src={decal.image!}
@@ -58,13 +58,13 @@ export function DecalInfo() {
 
       {isPlacingDecal && (
         <p className="text-sm text-gray-500">
-          Click on the shirt surface to place image
+          Click on the shirt surface to place image or text
         </p>
       )}
 
-      {activeDecalId && !isPlacingDecal && (
+      {activeDecal && !isPlacingDecal && (
         <p className="text-sm text-gray-500">
-          Drag the handles to resize or rotate the image
+          Drag the handles to resize or rotate the image or text
         </p>
       )}
     </div>

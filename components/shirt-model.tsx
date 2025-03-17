@@ -1,11 +1,11 @@
 "use client";
 
 import { Fragment, useEffect, useRef } from "react";
-import { useClothingStore } from "@/lib/store";
 import { Decal, Text, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
+import { type DecalItem, useClothingStore } from "@/lib/store";
+import { type Mesh, Raycaster, TextureLoader } from "three" ;
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
-import { type Mesh, Vector3, Raycaster, TextureLoader } from "three";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -24,7 +24,7 @@ export function ShirtModel() {
     interaction: {
       mode,
       dragOffset,
-      activeDecalId,
+      activeDecal,
       activeControlPoint,
       startScale,
       startRotation,
@@ -62,14 +62,14 @@ export function ShirtModel() {
   // Handle background click to deselect active decal
   useEffect(() => {
     const handleBackgroundClick = () => {
-      if (activeDecalId && mode === "idle") {
+      if (activeDecal?.id && mode === "idle") {
         setActiveDecal(null);
       }
     };
 
     window.addEventListener("click", handleBackgroundClick);
     return () => window.removeEventListener("click", handleBackgroundClick);
-  }, [activeDecalId, mode, setActiveDecal]);
+  }, [activeDecal?.id, mode, setActiveDecal]);
 
   // Global pointer up handler - improved to handle all interaction modes
   useEffect(() => {
@@ -95,7 +95,7 @@ export function ShirtModel() {
   const handleClickMesh = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
 
-    if (!meshRef.current || !isPlacingDecal || !activeDecalId) return;
+    if (!meshRef.current || !isPlacingDecal || !activeDecal) return;
 
     // Get click position
     const worldPosition = event.point;
@@ -108,20 +108,18 @@ export function ShirtModel() {
   // Handle pointer down on a decal
   const handlePointerDown = (
     event: ThreeEvent<PointerEvent>,
-    decalId: string,
+    decal: DecalItem,
   ) => {
     event.stopPropagation();
 
     if (!meshRef.current) return;
 
-    setActiveDecal(decalId);
+    setActiveDecal(decal);
 
-    // Find the decal
-    const activeDecal = decals.find((d) => d.id === decalId);
-    if (!activeDecal?.position) return;
+    if (!decal?.position) return;
 
     // Calculate the offset between the pointer hit point and the decal position
-    const worldDecalPos = activeDecal.position.clone();
+    const worldDecalPos = decal.position.clone();
     meshRef.current.localToWorld(worldDecalPos);
 
     const offset = worldDecalPos.clone().sub(event.point);
@@ -132,7 +130,7 @@ export function ShirtModel() {
     if (!meshRef.current) return;
 
     // Handle dragging
-    if (isDragging && dragOffset && activeDecalId) {
+    if (isDragging && dragOffset && activeDecal) {
       // Cast a ray from the camera through the mouse position
       dragRaycaster.current.setFromCamera(pointer, camera);
 
@@ -158,7 +156,7 @@ export function ShirtModel() {
     if (
       startScale &&
       isResizing &&
-      activeDecalId &&
+      activeDecal &&
       activeControlPoint &&
       startPointerPosition
     ) {
@@ -173,7 +171,6 @@ export function ShirtModel() {
 
       if (intersects.length > 0) {
         const currentPoint = intersects[0].point;
-        const activeDecal = decals.find((d) => d.id === activeDecalId);
 
         if (activeDecal?.position) {
           // Calculate the movement delta
@@ -268,7 +265,7 @@ export function ShirtModel() {
     // Handle rotating the decal
     if (
       isRotating &&
-      activeDecalId &&
+      activeDecal &&
       startRotation &&
       startPointerPosition &&
       activeControlPoint === "rot"
@@ -284,7 +281,6 @@ export function ShirtModel() {
 
       if (intersects.length > 0) {
         const currentPoint = intersects[0].point;
-        const activeDecal = decals.find((d) => d.id === activeDecalId);
 
         if (activeDecal?.position) {
           // Convert decal position to world space
@@ -333,13 +329,13 @@ export function ShirtModel() {
                   scale={decal.scale}
                   position={decal.position}
                   rotation={decal.rotation}
-                  onPointerDown={(e) => handlePointerDown(e, decal.id)}
+                  onPointerDown={(e) => handlePointerDown(e, decal)}
                 >
                   <meshStandardMaterial
                     transparent
                     polygonOffset
                     polygonOffsetFactor={-1}
-                    opacity={isDragging && activeDecalId === decal.id ? 0.8 : 1}
+                    opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
                   >
                     <Text color="black">{decal.text}</Text>
                   </meshStandardMaterial>
@@ -351,7 +347,7 @@ export function ShirtModel() {
                     scale={decal.scale}
                     position={decal.position}
                     rotation={decal.rotation}
-                    onPointerDown={(e) => handlePointerDown(e, decal.id)}
+                    onPointerDown={(e) => handlePointerDown(e, decal)}
                   >
                     <meshBasicMaterial
                       map={decal.texture}
@@ -359,7 +355,7 @@ export function ShirtModel() {
                       polygonOffset
                       polygonOffsetFactor={-1}
                       opacity={
-                        isDragging && activeDecalId === decal.id ? 0.8 : 1
+                        isDragging && activeDecal?.id === decal.id ? 0.8 : 1
                       }
                     />
                   </Decal>
@@ -371,7 +367,7 @@ export function ShirtModel() {
 
       {/* Single DecalControls component that uses pre-calculated points */}
       <DecalControls
-        visible={!!activeDecalId && !isDragging && !isPlacingDecal}
+        visible={!!activeDecal?.id && !isDragging && !isPlacingDecal}
       />
     </mesh>
   );

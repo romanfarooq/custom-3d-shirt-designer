@@ -7,12 +7,9 @@ import { type ControlPointName, useClothingStore } from "@/lib/store";
 
 export function DecalControls({ visible }: { visible: boolean }) {
   const {
-    decals,
     setInteractionMode,
-    interaction: { activeDecalId, controlPoints },
+    interaction: { activeDecal, controlPoints },
   } = useClothingStore();
-
-  const activeDecal = decals.find((d) => d.id === activeDecalId);
 
   if (!visible || controlPoints.length === 0 || !activeDecal) return null;
 

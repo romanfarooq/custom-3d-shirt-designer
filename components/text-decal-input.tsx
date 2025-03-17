@@ -16,7 +16,7 @@ import {
 export function TextDecalInput() {
   const {
     addTextDecal,
-    interaction: { mode },
+    interaction: { activeDecal, mode },
   } = useClothingStore();
   const isPlacingDecal = mode === "placing";
   const [text, setText] = useState("");
@@ -73,7 +73,7 @@ export function TextDecalInput() {
           Add Text to Shirt
         </Button>
 
-        {isPlacingDecal && (
+        {isPlacingDecal && activeDecal?.type === "text" && (
           <p className="mt-1 text-sm text-gray-500 italic">
             Click on the shirt surface to place text
           </p>
