@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { type Texture, Euler, Vector3, Quaternion } from "three";
+import { type Texture, type CanvasTexture, Euler, Vector3, Quaternion } from "three";
 
 export interface DecalItem {
   id: string;
   image: string | null;
   aspect: number | null;
-  texture: Texture | null;
+  texture: Texture | CanvasTexture | null;
   scale: Vector3;
   rotation: Euler;
   position: Vector3 | null;
@@ -67,7 +67,7 @@ export interface ClothingState {
   updateDecalPosition: (position: Vector3) => void;
   removeDecal: (id: string) => void;
   setActiveDecal: (activeDecal: DecalItem | null) => void;
-  setTexture: (id: string, texture: Texture) => void;
+  setTexture: (id: string, texture: Texture | CanvasTexture) => void;
   setInteractionMode: (
     mode: InteractionMode,
     options?: {
@@ -197,7 +197,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
         aspect: null,
         texture: null,
         position: null,
-        scale: new Vector3(5, 5, 20),
+        scale: new Vector3(5, 3, 20),
         rotation: new Euler(Math.PI / 2, 0, 0),
         type: "text",
         text,
@@ -368,6 +368,15 @@ export const useClothingStore = create<ClothingState>((set) => ({
       decals: state.decals.map((decal) =>
         decal.id === id ? { ...decal, texture } : decal,
       ),
+      interaction: state.interaction.activeDecal?.id === id
+        ? {
+            ...state.interaction,
+            activeDecal: {
+              ...state.interaction.activeDecal,
+              texture,
+            },
+          }
+        : state.interaction,
     })),
 
   setInteractionMode: (mode, options = {}) =>

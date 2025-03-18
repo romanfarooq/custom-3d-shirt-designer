@@ -2,11 +2,10 @@
 
 import { Fragment, useRef, useEffect } from "react";
 import { Decal, useGLTF } from "@react-three/drei";
-import { generateTextTexture } from "@/lib/utils";
 import { DecalControls } from "@/components/decal-controls";
 import { type DecalItem, useClothingStore } from "@/lib/store";
-import { type Mesh, Raycaster, TextureLoader } from "three";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
+import { type Mesh, Raycaster, TextureLoader, CanvasTexture } from "three";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -44,21 +43,35 @@ export function ShirtModel() {
   const isRotating = mode === "rotating";
   const isPlacingDecal = mode === "placing";
 
-  // Load textures for all decals
   useEffect(() => {
-    decals.forEach((decal) => {
-      if (decal.image && !decal.texture) {
-        // Load texture using TextureLoader
-        const loader = new TextureLoader();
-        loader.load(decal.image, (texture) => {
-          // Ensure texture settings are optimal
-          texture.needsUpdate = true;
-          texture.flipY = false; // Try this if texture appears inverted
-          setTexture(decal.id, texture);
-        });
-      }
-    });
-  }, [decals, setTexture]);
+    if (activeDecal?.image && !activeDecal?.texture) {
+      const loader = new TextureLoader();
+      loader.load(activeDecal.image, (texture) => {
+        texture.needsUpdate = true;
+        texture.flipY = false;
+        setTexture(activeDecal.id, texture);
+      });
+    } else if (activeDecal?.text && !activeDecal?.texture) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) return;
+
+      canvas.width = 512;
+      canvas.height = 256;
+
+      ctx.fillStyle = "black";
+      ctx.font = "Bold 100px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(activeDecal.text, canvas.width / 2, canvas.height / 2);
+
+      const texture = new CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      texture.flipY = false;
+      setTexture(activeDecal.id, texture);
+    }
+  }, [activeDecal?.id, activeDecal?.image, activeDecal?.text, activeDecal?.texture, setTexture]);
 
   // Handle background click to deselect active decal
   useEffect(() => {
@@ -325,7 +338,7 @@ export function ShirtModel() {
         (decal) =>
           decal.position && (
             <Fragment key={decal.id}>
-              {decal.type === "text" && decal.text ? (
+              {decal.type === "text" && decal.texture ? (
                 // Render text decal
                 <Decal
                   scale={decal.scale}
@@ -334,7 +347,7 @@ export function ShirtModel() {
                   onPointerDown={(e) => handlePointerDown(e, decal)}
                 >
                   <meshBasicMaterial
-                    map={generateTextTexture(decal.text)}
+                    map={decal.texture}
                     transparent
                     polygonOffset
                     polygonOffsetFactor={-1}
