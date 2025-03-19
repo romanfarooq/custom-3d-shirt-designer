@@ -3,9 +3,9 @@
 import { Fragment, useRef, useEffect } from "react";
 import { Decal, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
+import { type Mesh, Raycaster } from "three";
 import { type DecalItem, useClothingStore } from "@/lib/store";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
-import { type Mesh, Raycaster, TextureLoader, CanvasTexture } from "three";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -15,7 +15,6 @@ export function ShirtModel() {
     color,
     decals,
     placeDecal,
-    setTexture,
     setActiveDecal,
     updateDecalScale,
     setInteractionMode,
@@ -32,7 +31,7 @@ export function ShirtModel() {
     },
   } = useClothingStore();
 
-  const { camera, pointer } = useThree();
+  const { gl, camera, pointer } = useThree();
 
   // Custom raycaster for dragging
   const dragRaycaster = useRef(new Raycaster());
@@ -43,47 +42,19 @@ export function ShirtModel() {
   const isRotating = mode === "rotating";
   const isPlacingDecal = mode === "placing";
 
-  useEffect(() => {
-    if (activeDecal?.image && !activeDecal?.texture) {
-      const loader = new TextureLoader();
-      loader.load(activeDecal.image, (texture) => {
-        texture.needsUpdate = true;
-        texture.flipY = false;
-        setTexture(activeDecal.id, texture);
-      });
-    } else if (activeDecal?.text && !activeDecal?.texture) {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx) return;
-
-      canvas.width = 512;
-      canvas.height = 256;
-
-      ctx.fillStyle = "black";
-      ctx.font = "Bold 100px Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(activeDecal.text, canvas.width / 2, canvas.height / 2);
-
-      const texture = new CanvasTexture(canvas);
-      texture.needsUpdate = true;
-      texture.flipY = false;
-      setTexture(activeDecal.id, texture);
-    }
-  }, [activeDecal?.id, activeDecal?.image, activeDecal?.text, activeDecal?.texture, setTexture]);
-
   // Handle background click to deselect active decal
   useEffect(() => {
-    const handleBackgroundClick = () => {
-      if (activeDecal?.id && mode === "idle") {
+    const handleBackgroundClick = (event: MouseEvent) => {
+      console.log("hello")
+      // Ensure the event originates from the canvas and not other UI elements
+      if (event.target === gl.domElement && activeDecal?.id && mode === "idle") {
         setActiveDecal(null);
       }
     };
-
-    window.addEventListener("click", handleBackgroundClick);
-    return () => window.removeEventListener("click", handleBackgroundClick);
-  }, [activeDecal?.id, mode, setActiveDecal]);
+  
+    gl.domElement.addEventListener("click", handleBackgroundClick);
+    return () => gl.domElement.removeEventListener("click", handleBackgroundClick);
+  }, [activeDecal?.id, mode, setActiveDecal, gl.domElement]);
 
   // Global pointer up handler - improved to handle all interaction modes
   useEffect(() => {
