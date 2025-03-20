@@ -44,14 +44,6 @@ export function TextDecalInput() {
         fontSize: parseInt(textDecalState.fontSize) || 24,
       });
     }
-    setTextDecalState({
-      text: "",
-      fontFamily: "",
-      isBold: false,
-      isItalic: false,
-      isUnderline: false,
-      fontSize: "24",
-    });
   };
 
   useEffect(() => {
@@ -64,8 +56,17 @@ export function TextDecalInput() {
         isUnderline: activeDecal.isUnderline,
         fontSize: activeDecal.fontSize.toString(),
       });
+    } else {
+      setTextDecalState({
+        text: "",
+        fontFamily: "",
+        isBold: false,
+        isItalic: false,
+        isUnderline: false,
+        fontSize: "24",
+      });
     }
-  }, [activeDecal?.id, activeDecal?.type]);
+  }, [activeDecal?.id, activeDecal?.type, setTextDecalState]);
 
   return (
     <div className="mb-4">
@@ -119,10 +120,6 @@ export function TextDecalInput() {
             <ToggleGroup
               type="multiple"
               className="justify-start"
-              value={["bold", "italic", "underline"].filter(
-                (format) =>
-                  textDecalState[format as keyof typeof textDecalState],
-              )}
               onValueChange={(values) =>
                 setTextDecalState((prev) => ({
                   ...prev,

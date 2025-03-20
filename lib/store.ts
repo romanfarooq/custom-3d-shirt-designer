@@ -1,18 +1,12 @@
+import { nanoid } from "nanoid";
 import { create } from "zustand";
-import {
-  type Texture,
-  Euler,
-  Vector3,
-  Quaternion,
-  CanvasTexture,
-  TextureLoader,
-} from "three";
+import { type Texture, Euler, Vector3, Quaternion, TextureLoader } from "three";
 
 export interface DecalItem {
   id: string;
   image: string | null;
   aspect: number | null;
-  texture: Texture | CanvasTexture | null;
+  texture: Texture | null;
   scale: Vector3;
   rotation: Euler;
   position: Vector3 | null;
@@ -85,7 +79,7 @@ export interface ClothingState {
   updateDecalPosition: (position: Vector3) => void;
   removeDecal: (id: string) => void;
   setActiveDecal: (activeDecal: DecalItem | null) => void;
-  setTexture: (id: string, texture: Texture | CanvasTexture) => void;
+  setTexture: (id: string, texture: Texture) => void;
   setInteractionMode: (
     mode: InteractionMode,
     options?: {
@@ -110,9 +104,6 @@ export interface ClothingState {
     fontSize?: number;
   }) => void;
 }
-
-// Helper to generate unique IDs
-const generateId = () => Math.random().toString(36).substring(2, 9);
 
 // Base control points for decal manipulation
 const BASE_CONTROL_POINTS: {
@@ -183,7 +174,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
   setColor: (color) => set({ color }),
 
   addImageDecal: (image, aspect) => {
-    const newId = generateId();
+    const newId = nanoid();
 
     // Create texture immediately
     const loader = new TextureLoader();
@@ -224,184 +215,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
         };
       });
     });
-  },
-
-  addTextDecal: (textProps) => {
-    const newId = generateId();
-    const {
-      text,
-      fontFamily,
-      isBold = false,
-      isItalic = false,
-      isUnderline = false,
-      fontSize = 24,
-    } = textProps;
-
-    // Calculate appropriate scale based on text length
-    // Use a 2:1 aspect ratio to match canvas dimensions (512x256)
-    // This ensures text decal matches the canvas height and width proportions
-    const baseWidth = 10; // Base width for short text
-    const baseHeight = 5; // Base height (half of width for 2:1 ratio)
-
-    // Adjust width based on text length for longer text
-    // Longer text will have more width to accommodate wrapping
-    const textLength = text.length;
-    const widthFactor = Math.min(Math.max(1, textLength / 10), 2); // Cap at 2x width
-
-    // Create texture immediately
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    if (ctx) {
-      // Set canvas dimensions - maintain 2:1 aspect ratio
-      canvas.width = 512;
-      canvas.height = 256;
-
-      // Get font family or fallback to Arial
-      const fontFamilyToUse = fontFamily || "Arial";
-
-      // Use specified font size or default to max font size for auto-sizing
-      const maxFontSize = 100;
-      let fontSizeToUse = fontSize ?? maxFontSize;
-      const textToUse = text || "";
-
-      // Clear canvas first
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Create font style string
-      const fontWeight = isBold ? "bold" : "normal";
-      const fontStyle = isItalic ? "italic" : "normal";
-
-      // Start with specified font
-      ctx.font = `${fontStyle} ${fontWeight} ${fontSizeToUse}px ${fontFamilyToUse}`;
-
-      // Calculate maximum width and height for text area (90% of canvas)
-      const maxWidth = canvas.width * 0.9;
-      const maxHeight = canvas.height * 0.8;
-
-      // Function to wrap text and check if it fits
-      const wrapText = (text: string, fontSize: number) => {
-        // Apply font styling consistently
-        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamilyToUse}`;
-        const words = text.split(" ");
-        const lines = [];
-        let currentLine = words[0] || "";
-
-        for (let i = 1; i < words.length; i++) {
-          const word = words[i];
-          const width = ctx.measureText(currentLine + " " + word).width;
-
-          if (width < maxWidth) {
-            currentLine += " " + word;
-          } else {
-            lines.push(currentLine);
-            currentLine = word;
-          }
-        }
-        lines.push(currentLine);
-
-        // Check if text height fits within maxHeight
-        const lineHeight = fontSize * 1.2; // Add some line spacing
-        const totalHeight = lineHeight * lines.length;
-
-        return {
-          lines,
-          totalHeight,
-          lineHeight,
-          fits: totalHeight <= maxHeight,
-        };
-      };
-
-      // Reduce font size until text fits both width and height constraints
-      let textInfo = wrapText(textToUse, fontSizeToUse);
-      while (!textInfo.fits && fontSizeToUse > 20) {
-        fontSizeToUse -= 5;
-        textInfo = wrapText(textToUse, fontSizeToUse);
-      }
-
-      // Set final font and draw wrapped text
-      ctx.fillStyle = "black";
-      ctx.font = `${fontStyle} ${fontWeight} ${fontSizeToUse}px ${fontFamilyToUse}`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      // Calculate starting Y position to center all lines vertically
-      const startY =
-        (canvas.height - textInfo.totalHeight) / 2 + textInfo.lineHeight / 2;
-
-      // Draw each line of text
-      textInfo.lines.forEach((line, index) => {
-        const y = startY + index * textInfo.lineHeight;
-        ctx.fillText(line, canvas.width / 2, y);
-
-        // Add underline if enabled
-        if (isUnderline) {
-          const textWidth = ctx.measureText(line).width;
-          const underlineY = y + fontSizeToUse * 0.1; // Position slightly below text
-          const lineStartX = (canvas.width - textWidth) / 2;
-
-          ctx.beginPath();
-          ctx.moveTo(lineStartX, underlineY);
-          ctx.lineTo(lineStartX + textWidth, underlineY);
-          ctx.lineWidth = Math.max(1, fontSizeToUse * 0.05); // Scale underline with font size
-          ctx.stroke();
-        }
-      });
-
-      const texture = new CanvasTexture(canvas);
-      texture.needsUpdate = true;
-      texture.flipY = false;
-
-      set((state) => {
-        const newDecal: DecalItem = {
-          id: newId,
-          image: null,
-          aspect: 2, // Setting aspect to match canvas ratio (width:height = 2:1)
-          texture: texture,
-          position: null,
-          scale: new Vector3(baseWidth * widthFactor, baseHeight, 20),
-          rotation: new Euler(Math.PI / 2, 0, 0),
-          type: "text",
-          text,
-          fontFamily,
-          isBold,
-          isItalic,
-          isUnderline,
-          fontSize,
-        };
-
-        return {
-          decals: [...state.decals, newDecal],
-          interaction: {
-            mode: "placing",
-            dragOffset: null,
-            activeDecal: newDecal,
-            activeControlPoint: null,
-            controlPoints: [],
-            startScale: null,
-            startRotation: null,
-            startPointerPosition: null,
-          },
-        };
-      });
-    } else {
-      // Fallback if canvas context is not available
-      set((state) => {
-        return {
-          decals: [...state.decals],
-          interaction: {
-            mode: "idle",
-            dragOffset: null,
-            activeDecal: null,
-            activeControlPoint: null,
-            controlPoints: [],
-            startScale: null,
-            startRotation: null,
-            startPointerPosition: null,
-          },
-        };
-      });
-    }
   },
 
   placeDecal: (position) =>
@@ -581,52 +394,74 @@ export const useClothingStore = create<ClothingState>((set) => ({
       },
     })),
 
-  // Update text textProps properties
-  updateTextDecal: (textProps) =>
+  addTextDecal: (textProps) =>
     set((state) => {
-      // Find the decal to update
-      const decalToUpdate = state.decals.find(
-        (decal) => decal.id === state.interaction.activeDecal?.id,
-      );
-      if (!decalToUpdate || decalToUpdate.type !== "text") return state;
+      const newId = nanoid();
 
-      // Create updated decal with new textProps
-      const updatedDecal = {
-        ...decalToUpdate,
-        text:
-          textProps.text !== undefined ? textProps.text : decalToUpdate.text,
-        fontFamily:
-          textProps.fontFamily !== undefined
-            ? textProps.fontFamily
-            : decalToUpdate.fontFamily,
-        isBold:
-          textProps.isBold !== undefined
-            ? textProps.isBold
-            : decalToUpdate.isBold,
-        isItalic:
-          textProps.isItalic !== undefined
-            ? textProps.isItalic
-            : decalToUpdate.isItalic,
-        isUnderline:
-          textProps.isUnderline !== undefined
-            ? textProps.isUnderline
-            : decalToUpdate.isUnderline,
-        fontSize:
-          textProps.fontSize !== undefined
-            ? textProps.fontSize
-            : decalToUpdate.fontSize,
+      const newDecal: DecalItem = {
+        id: newId,
+        image: null,
+        aspect: null,
+        texture: null,
+        position: null,
+        scale: new Vector3(10, 10, 20),
+        rotation: new Euler(Math.PI / 2, 0, 0),
+        type: "text",
+        text: textProps.text ?? null,
+        fontFamily: textProps.fontFamily ?? null,
+        isBold: textProps.isBold ?? false,
+        isItalic: textProps.isItalic ?? false,
+        isUnderline: textProps.isUnderline ?? false,
+        fontSize: textProps.fontSize ?? 0,
       };
 
-      // Update the decals array
       return {
-        decals: state.decals.map((decal) =>
-          decal.id === state.interaction.activeDecal?.id ? updatedDecal : decal,
-        ),
-        // Update active decal if it's the one being modified
+        decals: [...state.decals, newDecal],
         interaction: {
-          ...state.interaction,
-          activeDecal: updatedDecal,
+          mode: "placing",
+          dragOffset: null,
+          activeDecal: newDecal,
+          activeControlPoint: null,
+          controlPoints: [],
+          startScale: null,
+          startRotation: null,
+          startPointerPosition: null,
         },
       };
     }),
+
+  updateTextDecal: (textProps) => {
+    set((state) => {
+      const { activeDecal } = state.interaction;
+      if (!activeDecal) return state;
+
+      return {
+        decals: state.decals.map((decal) =>
+          decal.id === activeDecal.id
+            ? {
+                ...decal,
+                text: textProps.text ?? decal.text,
+                fontFamily: textProps.fontFamily ?? decal.fontFamily,
+                isBold: textProps.isBold ?? decal.isBold,
+                isItalic: textProps.isItalic ?? decal.isItalic,
+                isUnderline: textProps.isUnderline ?? decal.isUnderline,
+                fontSize: textProps.fontSize ?? decal.fontSize,
+              }
+            : decal,
+        ),
+        interaction: {
+          ...state.interaction,
+          activeDecal: {
+            ...activeDecal,
+            text: textProps.text ?? activeDecal.text,
+            fontFamily: textProps.fontFamily ?? activeDecal.fontFamily,
+            isBold: textProps.isBold ?? activeDecal.isBold,
+            isItalic: textProps.isItalic ?? activeDecal.isItalic,
+            isUnderline: textProps.isUnderline ?? activeDecal.isUnderline,
+            fontSize: textProps.fontSize ?? activeDecal.fontSize,
+          },
+        },
+      };
+    });
+  },
 }));

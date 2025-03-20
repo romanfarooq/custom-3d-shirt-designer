@@ -44,17 +44,14 @@ export function ShirtModel() {
 
   // Handle background click to deselect active decal
   useEffect(() => {
-    const handleBackgroundClick = (event: MouseEvent) => {
-      console.log("hello")
-      // Ensure the event originates from the canvas and not other UI elements
-      if (event.target === gl.domElement && activeDecal?.id && mode === "idle") {
-        setActiveDecal(null);
-      }
+    const handleInActiveDecal = () => {
+      if (!activeDecal?.id || mode !== "idle") return;
+      setActiveDecal(null);
     };
-  
-    gl.domElement.addEventListener("click", handleBackgroundClick);
-    return () => gl.domElement.removeEventListener("click", handleBackgroundClick);
-  }, [activeDecal?.id, mode, setActiveDecal, gl.domElement]);
+    gl.domElement.addEventListener("click", handleInActiveDecal);
+    return () =>
+      gl.domElement.removeEventListener("click", handleInActiveDecal);
+  }, [activeDecal?.id, gl.domElement, mode, setActiveDecal]);
 
   // Global pointer up handler - improved to handle all interaction modes
   useEffect(() => {
@@ -309,8 +306,7 @@ export function ShirtModel() {
         (decal) =>
           decal.position && (
             <Fragment key={decal.id}>
-              {decal.type === "text" && decal.texture ? (
-                // Render text decal
+              {decal.texture && (
                 <Decal
                   scale={decal.scale}
                   position={decal.position}
@@ -327,26 +323,6 @@ export function ShirtModel() {
                     }
                   />
                 </Decal>
-              ) : (
-                // Render image decal
-                decal.texture && (
-                  <Decal
-                    scale={decal.scale}
-                    position={decal.position}
-                    rotation={decal.rotation}
-                    onPointerDown={(e) => handlePointerDown(e, decal)}
-                  >
-                    <meshBasicMaterial
-                      map={decal.texture}
-                      transparent
-                      polygonOffset
-                      polygonOffsetFactor={-1}
-                      opacity={
-                        isDragging && activeDecal?.id === decal.id ? 0.8 : 1
-                      }
-                    />
-                  </Decal>
-                )
               )}
             </Fragment>
           ),
