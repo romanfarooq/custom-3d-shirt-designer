@@ -344,7 +344,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
       };
     }),
 
-  setActiveDecal: (activeDecal: DecalItem | null) =>
+  setActiveDecal: (activeDecal) =>
     set((state) => {
       return {
         interaction: {
