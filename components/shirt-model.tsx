@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Decal, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
 import { type Mesh, Raycaster } from "three";
@@ -304,27 +304,24 @@ export function ShirtModel() {
       {/* Render all decals directly as children of the mesh */}
       {decals.map(
         (decal) =>
-          decal.position && (
-            <Fragment key={decal.id}>
-              {decal.texture && (
-                <Decal
-                  scale={decal.scale}
-                  position={decal.position}
-                  rotation={decal.rotation}
-                  onPointerDown={(e) => handlePointerDown(e, decal)}
-                >
-                  <meshBasicMaterial
-                    map={decal.texture}
-                    transparent
-                    polygonOffset
-                    polygonOffsetFactor={-1}
-                    opacity={
-                      isDragging && activeDecal?.id === decal.id ? 0.8 : 1
-                    }
-                  />
-                </Decal>
-              )}
-            </Fragment>
+          decal.texture &&
+          decal.position &&
+          decal.type === "image" && (
+            <Decal
+              key={decal.id}
+              scale={decal.scale}
+              position={decal.position}
+              rotation={decal.rotation}
+              onPointerDown={(e) => handlePointerDown(e, decal)}
+            >
+              <meshBasicMaterial
+                map={decal.texture}
+                transparent
+                polygonOffset
+                polygonOffsetFactor={-1}
+                opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
+              />
+            </Decal>
           ),
       )}
 

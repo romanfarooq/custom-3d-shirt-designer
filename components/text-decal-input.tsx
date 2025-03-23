@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useClothingStore } from "@/lib/store";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -45,28 +45,6 @@ export function TextDecalInput() {
       });
     }
   };
-
-  useEffect(() => {
-    if (activeDecal?.id && activeDecal?.type === "text") {
-      setTextDecalState({
-        text: activeDecal.text || "",
-        fontFamily: activeDecal.fontFamily || "",
-        isBold: activeDecal.isBold,
-        isItalic: activeDecal.isItalic,
-        isUnderline: activeDecal.isUnderline,
-        fontSize: activeDecal.fontSize.toString(),
-      });
-    } else {
-      setTextDecalState({
-        text: "",
-        fontFamily: "",
-        isBold: false,
-        isItalic: false,
-        isUnderline: false,
-        fontSize: "24",
-      });
-    }
-  }, [activeDecal?.id, activeDecal?.type, setTextDecalState]);
 
   return (
     <div className="mb-4">

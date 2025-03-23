@@ -16,8 +16,7 @@ import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 export default function Home() {
   const orbitControlsRef = useRef<OrbitControlsType | null>(null);
   const {
-    setActiveDecal,
-    interaction: { activeDecal, mode },
+    interaction: { mode },
   } = useClothingStore();
   const isDragging = mode === "dragging";
   const isRotating = mode === "rotating";
