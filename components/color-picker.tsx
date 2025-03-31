@@ -23,13 +23,13 @@ export function ColorPicker() {
         {COLOR_OPTIONS.map((colorOption) => (
           <button
             key={colorOption.value}
+            title={colorOption.name}
+            onClick={() => setColor(colorOption.value)}
+            style={{ backgroundColor: colorOption.value }}
             className={cn(
               "h-10 w-10 cursor-pointer rounded-full border-2 transition-all hover:scale-110",
               color === colorOption.value ? "border-accent" : "border-gray-200",
             )}
-            style={{ backgroundColor: colorOption.value }}
-            onClick={() => setColor(colorOption.value)}
-            title={colorOption.name}
           />
         ))}
 

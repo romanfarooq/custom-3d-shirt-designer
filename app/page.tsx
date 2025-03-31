@@ -88,8 +88,8 @@ export default function Home() {
           {/* Reset Camera Button */}
           <div className="absolute right-4 bottom-4 z-10">
             <Button
-              variant="secondary"
               size="sm"
+              variant="secondary"
               className="cursor-pointer bg-white/80 shadow-md hover:bg-white"
               onClick={resetCamera}
             >

@@ -45,8 +45,8 @@ export function DecalControls({ visible }: { visible: boolean }) {
       {controlPoints.map((point) => (
         <Decal
           key={point.type}
+          scale={[1, 1, 20]}
           position={point.position}
-          scale={new Vector3(1, 1, 20)}
           rotation={activeDecal.rotation}
           onPointerDown={(e) => handlePointerDown(e, point.type)}
           onPointerOver={() => {

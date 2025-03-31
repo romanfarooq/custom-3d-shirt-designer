@@ -27,13 +27,13 @@ export function DecalInfo() {
             decal.type === "image" && (
               <div
                 key={decal.id}
+                onClick={() => setActiveDecal(decal)}
                 className={cn(
                   "relative cursor-pointer rounded border-2 p-1",
                   activeDecal?.id === decal.id
                     ? "border-black"
                     : "border-gray-200",
                 )}
-                onClick={() => setActiveDecal(decal)}
               >
                 <Image
                   src={decal.image!}
