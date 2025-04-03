@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Decal, useGLTF } from "@react-three/drei";
 import { DecalControls } from "@/components/decal-controls";
 import { type Mesh, Raycaster } from "three";
 import { type DecalItem, useClothingStore } from "@/lib/store";
 import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
+import { Decal, RenderTexture, Text, useGLTF } from "@react-three/drei";
 
 export function ShirtModel() {
   const meshRef = useRef<Mesh | null>(null);
@@ -302,27 +302,55 @@ export function ShirtModel() {
       <meshStandardMaterial color={color} />
 
       {/* Render all decals directly as children of the mesh */}
-      {decals.map(
-        (decal) =>
-          decal.texture &&
-          decal.position &&
-          decal.type === "image" && (
-            <Decal
-              key={decal.id}
-              scale={decal.scale}
-              position={decal.position}
-              rotation={decal.rotation}
-              onPointerDown={(e) => handlePointerDown(e, decal)}
+      {decals.map((decal) =>
+        decal.texture && decal.position && decal.type === "image" ? (
+          <Decal
+            key={decal.id}
+            scale={decal.scale}
+            position={decal.position}
+            rotation={decal.rotation}
+            onPointerDown={(e) => handlePointerDown(e, decal)}
+          >
+            <meshBasicMaterial
+              map={decal.texture}
+              transparent
+              polygonOffset
+              polygonOffsetFactor={-1}
+              opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
+            />
+          </Decal>
+        ) : decal.type === "text" && decal.text && decal.position ? (
+          <Decal
+            key={decal.id}
+            scale={decal.scale}
+            position={decal.position}
+            rotation={decal.rotation}
+            onPointerDown={(e) => handlePointerDown(e, decal)}
+          >
+            <meshBasicMaterial
+              transparent
+              polygonOffset
+              polygonOffsetFactor={-1}
             >
-              <meshBasicMaterial
-                map={decal.texture}
-                transparent
-                polygonOffset
-                polygonOffsetFactor={-1}
-                opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
-              />
-            </Decal>
-          ),
+              <RenderTexture attach="map">
+                <Text
+                  color="black"
+                  anchorX="center"
+                  anchorY="middle"
+                  outlineColor="white"
+                  outlineWidth={0.05}
+                  fontSize={decal.fontSize}
+                  scale={[-1, 1, 1]}
+                  rotation={[0, 0, Math.PI]}
+                  fontWeight={decal.isBold ? "bold" : "normal"}
+                  fontStyle={decal.isItalic ? "italic" : "normal"}
+                >
+                  {decal.text}
+                </Text>
+              </RenderTexture>
+            </meshBasicMaterial>
+          </Decal>
+        ) : null,
       )}
 
       {/* Single DecalControls component that uses pre-calculated points */}
