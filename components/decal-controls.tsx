@@ -1,6 +1,5 @@
 "use client";
 
-import { Vector3 } from "three";
 import { Decal } from "@react-three/drei";
 import { type ThreeEvent } from "@react-three/fiber";
 import { type ControlPointName, useClothingStore } from "@/lib/store";

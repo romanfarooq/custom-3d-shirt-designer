@@ -24,6 +24,7 @@ export function DecalInfo() {
       <div className="mb-4 grid grid-cols-4 gap-2">
         {decals.map(
           (decal) =>
+            decal.image &&
             decal.type === "image" && (
               <div
                 key={decal.id}
@@ -36,7 +37,7 @@ export function DecalInfo() {
                 )}
               >
                 <Image
-                  src={decal.image!}
+                  src={decal.image}
                   alt="Decal"
                   height={50}
                   width={50}

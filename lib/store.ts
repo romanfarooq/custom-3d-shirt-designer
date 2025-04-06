@@ -339,7 +339,18 @@ export const useClothingStore = create<ClothingState>((set) => ({
           : state.interaction;
 
       return {
-        decals: state.decals.filter((decal) => decal.id !== id),
+        decals: state.decals.filter((decal) => {
+          if (decal.id === id) {
+            if (decal.type === "image" && decal.image) {
+              URL.revokeObjectURL(decal.image);
+            }
+            if (decal.texture) {
+              decal.texture.dispose();
+            }
+            return false;
+          }
+          return true;
+        }),
         interaction: newInteraction,
       };
     }),

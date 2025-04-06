@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent } from "react";
+import { type ChangeEvent, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { useClothingStore } from "@/lib/store";
 
@@ -9,24 +9,24 @@ export function ImageDecalUploader() {
     addImageDecal,
     interaction: { activeDecal, mode },
   } = useClothingStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isPlacingDecal = mode === "placing";
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result as string;
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = objectUrl;
 
-      img.onload = () => {
-        const aspect = img.width / img.height;
-        const objectUrl = URL.createObjectURL(file);
-        addImageDecal(objectUrl, aspect);
-      };
+    img.onload = () => {
+      const aspect = img.width / img.height;
+      addImageDecal(objectUrl, aspect);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     };
-    reader.readAsDataURL(file);
   };
 
   return (
@@ -35,6 +35,7 @@ export function ImageDecalUploader() {
       <div className="flex flex-col gap-3">
         <Label className="hover:border-accent flex h-10 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 transition-colors">
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleImageUpload}

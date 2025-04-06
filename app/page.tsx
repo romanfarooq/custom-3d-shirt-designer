@@ -14,7 +14,7 @@ import { ImageDecalUploader } from "@/components/image-decal-uploader";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 
 export default function Home() {
-  const orbitControlsRef = useRef<OrbitControlsType | null>(null);
+  const orbitControlsRef = useRef<OrbitControlsType>(null);
   const {
     interaction: { mode },
   } = useClothingStore();

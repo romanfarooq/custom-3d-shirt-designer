@@ -16,20 +16,22 @@ import {
 } from "@/components/ui/select";
 
 export function TextDecalInput() {
+  const [textDecalState, setTextDecalState] = useState({
+    text: "",
+    fontFamily: "",
+    fontSize: "24",
+    isBold: false,
+    isItalic: false,
+    isUnderline: false,
+  });
+
   const {
     addTextDecal,
     updateTextDecal,
     interaction: { activeDecal, mode },
   } = useClothingStore();
+
   const isPlacingDecal = mode === "placing";
-  const [textDecalState, setTextDecalState] = useState({
-    text: "",
-    fontFamily: "",
-    isBold: false,
-    isItalic: false,
-    isUnderline: false,
-    fontSize: "24",
-  });
 
   const handleAddText = () => {
     if (!textDecalState.text.trim() || !textDecalState.fontFamily) return;
@@ -137,8 +139,8 @@ export function TextDecalInput() {
             </Label>
             <Input
               type="number"
-              min="12"
-              max="72"
+              min="0"
+              max="100"
               value={textDecalState.fontSize}
               onChange={(e) =>
                 setTextDecalState((prev) => ({

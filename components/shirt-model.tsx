@@ -8,7 +8,7 @@ import { type ThreeEvent, useThree, useFrame } from "@react-three/fiber";
 import { Decal, RenderTexture, Text, useGLTF } from "@react-three/drei";
 
 export function ShirtModel() {
-  const meshRef = useRef<Mesh | null>(null);
+  const meshRef = useRef<Mesh>(null);
   const { nodes, materials } = useGLTF("/shirt_man.glb");
 
   const {
@@ -331,6 +331,7 @@ export function ShirtModel() {
               transparent
               polygonOffset
               polygonOffsetFactor={-1}
+              opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
             >
               <RenderTexture attach="map">
                 <Text
