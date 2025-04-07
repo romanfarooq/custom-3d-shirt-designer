@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useClothingStore } from "@/lib/store";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,40 @@ export function TextDecalInput() {
   } = useClothingStore();
 
   const isPlacingDecal = mode === "placing";
+
+  useEffect(() => {
+    if (
+      activeDecal?.text &&
+      activeDecal?.fontFamily &&
+      activeDecal?.type === "text"
+    ) {
+      setTextDecalState({
+        text: activeDecal.text,
+        fontFamily: activeDecal.fontFamily,
+        fontSize: String(activeDecal.fontSize),
+        isBold: activeDecal.isBold,
+        isItalic: activeDecal.isItalic,
+        isUnderline: activeDecal.isUnderline,
+      });
+    } else {
+      setTextDecalState({
+        text: "",
+        fontFamily: "Arial",
+        fontSize: "24",
+        isBold: false,
+        isItalic: false,
+        isUnderline: false,
+      });
+    }
+  }, [
+    activeDecal?.text,
+    activeDecal?.type,
+    activeDecal?.fontSize,
+    activeDecal?.fontFamily,
+    activeDecal?.isBold,
+    activeDecal?.isItalic,
+    activeDecal?.isUnderline,
+  ]);
 
   const handleAddText = () => {
     if (!textDecalState.text.trim() || !textDecalState.fontFamily) return;
