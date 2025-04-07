@@ -31,7 +31,6 @@ export function ShirtModel() {
     >
       <meshStandardMaterial color={color} />
 
-      {/* Render all decals through the extracted component */}
       <DecalRenderer
         mode={mode}
         decals={decals}
@@ -39,7 +38,6 @@ export function ShirtModel() {
         onPointerDown={handlePointerDown}
       />
 
-      {/* Single DecalControls component that uses pre-calculated points */}
       <DecalControls
         visible={!!activeDecal?.id && mode !== "dragging" && mode !== "placing"}
       />

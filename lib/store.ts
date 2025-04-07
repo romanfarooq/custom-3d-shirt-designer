@@ -59,12 +59,10 @@ export interface InteractionState {
 }
 
 export interface ClothingState {
-  // State properties
   color: string;
   decals: DecalItem[];
   interaction: InteractionState;
 
-  // Actions
   setColor: (color: string) => void;
   addImageDecal: (image: string, aspect: number) => void;
   addTextDecal: (textProps: {
@@ -105,7 +103,6 @@ export interface ClothingState {
   }) => void;
 }
 
-// Base control points for decal manipulation
 const BASE_CONTROL_POINTS: {
   position: Vector3;
   type: ControlPointName;
@@ -122,7 +119,6 @@ const BASE_CONTROL_POINTS: {
   { position: new Vector3(0, -0.7, 0), type: "rot", cursor: "grab" },
 ];
 
-// Helper function to calculate control points
 const calculateControlPoints = (
   scale: Vector3,
   position: Vector3,
@@ -131,20 +127,16 @@ const calculateControlPoints = (
   const quaternion = new Quaternion().setFromEuler(rotation);
 
   return BASE_CONTROL_POINTS.map((point) => {
-    // Clone the base position to avoid mutating the original
     const basePosition = point.position.clone();
 
-    // Scale the position
     const scaledPosition = new Vector3(
       basePosition.x * scale.x,
       basePosition.y * scale.y,
       0,
     );
 
-    // Apply rotation
     scaledPosition.applyQuaternion(quaternion);
 
-    // Add to decal position
     const finalPosition = position.clone().add(scaledPosition);
 
     return {
@@ -156,7 +148,6 @@ const calculateControlPoints = (
 };
 
 export const useClothingStore = create<ClothingState>((set) => ({
-  // Initial state
   color: "#F3F4F6", // Default color (White)
   decals: [],
   interaction: {
@@ -170,13 +161,9 @@ export const useClothingStore = create<ClothingState>((set) => ({
     startPointerPosition: null,
   },
 
-  // Actions to update state
   setColor: (color) => set({ color }),
 
   addImageDecal: (image, aspect) => {
-    const newId = nanoid();
-
-    // Create texture immediately
     const loader = new TextureLoader();
     loader.load(image, (texture) => {
       texture.needsUpdate = true;
@@ -184,7 +171,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
       set((state) => {
         const newDecal: DecalItem = {
-          id: newId,
+          id: nanoid(),
           image,
           aspect,
           texture: texture,
@@ -242,7 +229,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
       const { activeDecal } = state.interaction;
       if (!activeDecal) return state;
 
-      // Calculate new control points immediately using the helper function
       const newControlPoints = calculateControlPoints(
         activeDecal.scale,
         position,
@@ -264,13 +250,11 @@ export const useClothingStore = create<ClothingState>((set) => ({
       };
     }),
 
-  // New action to update decal scale
   updateDecalScale: (newScale) =>
     set((state) => {
       const { activeDecal } = state.interaction;
       if (!activeDecal?.position) return state;
 
-      // Calculate new control points immediately using the helper function
       const newControlPoints = calculateControlPoints(
         newScale,
         activeDecal.position,
@@ -292,13 +276,11 @@ export const useClothingStore = create<ClothingState>((set) => ({
       };
     }),
 
-  // New action to update decal rotation
   updateDecalRotation: (newRotation) =>
     set((state) => {
       const { activeDecal } = state.interaction;
       if (!activeDecal?.position) return state;
 
-      // Calculate new control points immediately using the helper function
       const newControlPoints = calculateControlPoints(
         activeDecal.scale,
         activeDecal.position,
@@ -324,7 +306,6 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
   removeDecal: (id) =>
     set((state) => {
-      // If removing the active decal, clear the active decal
       const newInteraction =
         state.interaction.activeDecal?.id === id
           ? {
@@ -407,10 +388,8 @@ export const useClothingStore = create<ClothingState>((set) => ({
 
   addTextDecal: (textProps) =>
     set((state) => {
-      const newId = nanoid();
-
       const newDecal: DecalItem = {
-        id: newId,
+        id: nanoid(),
         image: null,
         aspect: null,
         texture: null,

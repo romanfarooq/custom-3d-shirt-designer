@@ -33,7 +33,6 @@ export function ColorPicker() {
           />
         ))}
 
-        {/* Custom color picker - inline with other colors */}
         <div className="relative">
           <input
             type="color"

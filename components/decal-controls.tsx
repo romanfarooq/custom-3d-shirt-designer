@@ -18,12 +18,10 @@ export function DecalControls({ visible }: { visible: boolean }) {
   ) => {
     event.stopPropagation();
 
-    // Store initial values for the transformation
     const startScale = activeDecal.scale.clone();
     const startRotation = activeDecal.rotation.clone();
     const startPointerPosition = event.point.clone();
 
-    // Set the interaction mode based on the control point type
     if (activeControlPoint === "rot") {
       setInteractionMode("rotating", {
         startRotation,

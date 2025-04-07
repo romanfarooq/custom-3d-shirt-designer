@@ -1,6 +1,6 @@
-import { Decal, RenderTexture, Text } from "@react-three/drei";
-import { ThreeEvent } from "@react-three/fiber";
-import { DecalItem } from "@/lib/store";
+import type { DecalItem } from "@/lib/store";
+import type { ThreeEvent } from "@react-three/fiber";
+import { Decal, Text, RenderTexture } from "@react-three/drei";
 
 interface DecalRendererProps {
   mode: string;
@@ -20,7 +20,7 @@ export function DecalRenderer({
   return (
     <>
       {decals.map((decal) =>
-        decal.texture && decal.position && decal.type === "image" ? (
+        decal.type === "image" && decal.texture && decal.position ? (
           <Decal
             key={decal.id}
             scale={decal.scale}
