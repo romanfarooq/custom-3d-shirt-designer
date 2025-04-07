@@ -56,7 +56,7 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
     return () => window.removeEventListener("pointerup", handleGlobalPointerUp);
   }, [isDragging, isResizing, isRotating, setInteractionMode]);
 
-  const handleClickMesh = (event: ThreeEvent<MouseEvent>) => {
+  function handleClickMesh(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
 
     if (!meshRef.current || !isPlacingDecal || !activeDecal) return;
@@ -65,7 +65,7 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
     const localPosition = meshRef.current.worldToLocal(worldPosition.clone());
 
     placeDecal(localPosition);
-  };
+  }
 
   function handlePointerDown(
     event: ThreeEvent<PointerEvent>,

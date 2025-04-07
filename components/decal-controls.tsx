@@ -12,14 +12,14 @@ export function DecalControls({ visible }: { visible: boolean }) {
 
   if (!visible || controlPoints.length === 0 || !activeDecal) return null;
 
-  const handlePointerDown = (
+  function handlePointerDown(
     event: ThreeEvent<PointerEvent>,
     activeControlPoint: ControlPointName,
-  ) => {
+  ) {
     event.stopPropagation();
 
-    const startScale = activeDecal.scale.clone();
-    const startRotation = activeDecal.rotation.clone();
+    const startScale = activeDecal?.scale.clone();
+    const startRotation = activeDecal?.rotation.clone();
     const startPointerPosition = event.point.clone();
 
     if (activeControlPoint === "rot") {
@@ -35,7 +35,7 @@ export function DecalControls({ visible }: { visible: boolean }) {
         startPointerPosition,
       });
     }
-  };
+  }
 
   return (
     <>
