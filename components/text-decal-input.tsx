@@ -18,7 +18,7 @@ import {
 export function TextDecalInput() {
   const [textDecalState, setTextDecalState] = useState({
     text: "",
-    fontFamily: "",
+    fontFamily: "Arial",
     fontSize: "24",
     isBold: false,
     isItalic: false,
