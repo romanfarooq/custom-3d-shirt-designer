@@ -1,6 +1,7 @@
 import type { DecalItem } from "@/lib/store";
 import type { ThreeEvent } from "@react-three/fiber";
-import { Decal, Text, RenderTexture } from "@react-three/drei";
+import { TextDecalElement } from "@/components/text-decal-element";
+import { Decal, RenderTexture, PerspectiveCamera } from "@react-three/drei";
 
 interface DecalRendererProps {
   mode: string;
@@ -50,35 +51,10 @@ export function DecalRenderer({
               polygonOffsetFactor={-1}
               opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
             >
-              <RenderTexture attach="map">
+              <RenderTexture attach="map" anisotropy={16}>
+                <PerspectiveCamera makeDefault manual position={[0, 0, 5]} />
                 <group scale={[1 / decal.scale.x, 1 / decal.scale.y, 1]}>
-                  <Text
-                    color="black"
-                    anchorX="center"
-                    anchorY="middle"
-                    outlineColor="white"
-                    outlineWidth={0.05}
-                    scale={[-1, 1, 1]}
-                    rotation={[0, 0, Math.PI]}
-                    fontSize={decal.fontSize * 10}
-                    fontWeight={decal.isBold ? "bold" : "normal"}
-                    fontStyle={decal.isItalic ? "italic" : "normal"}
-                  >
-                    {decal.text}
-                  </Text>
-                  {decal.isUnderline &&
-                    (() => {
-                      const underlineThickness = decal.fontSize * 10 * (decal.isBold ? 0.05 : 0.02);
-                      const underlineWidth = decal.text.length * decal.fontSize * 10 * 0.6;
-                      const underlinePositionY = (decal.fontSize * 10) / 2 + underlineThickness;
-                      const underlinePositionZ = -0.01;
-                      return (
-                        <mesh position={[0, underlinePositionY, underlinePositionZ]}>
-                          <planeGeometry args={[underlineWidth, underlineThickness]} />
-                          <meshBasicMaterial color="black" />
-                        </mesh>
-                      );
-                    })()}
+                  <TextDecalElement decal={decal} />
                 </group>
               </RenderTexture>
             </meshBasicMaterial>

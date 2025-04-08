@@ -19,7 +19,7 @@ export function TextDecalInput() {
   const [textDecalState, setTextDecalState] = useState({
     text: "",
     fontFamily: "Arial",
-    fontSize: "24",
+    fontSize: "10",
     isBold: false,
     isItalic: false,
     isUnderline: false,
@@ -51,7 +51,7 @@ export function TextDecalInput() {
       setTextDecalState({
         text: "",
         fontFamily: "Arial",
-        fontSize: "24",
+        fontSize: "10",
         isBold: false,
         isItalic: false,
         isUnderline: false,
@@ -72,12 +72,12 @@ export function TextDecalInput() {
     if (activeDecal?.id && activeDecal?.type === "text") {
       updateTextDecal({
         ...textDecalState,
-        fontSize: parseInt(textDecalState.fontSize) || 24,
+        fontSize: parseInt(textDecalState.fontSize) || 10,
       });
     } else {
       addTextDecal({
         ...textDecalState,
-        fontSize: parseInt(textDecalState.fontSize) || 24,
+        fontSize: parseInt(textDecalState.fontSize) || 10,
       });
     }
   };
@@ -134,6 +134,11 @@ export function TextDecalInput() {
             <ToggleGroup
               type="multiple"
               className="justify-start"
+              value={[
+                textDecalState.isBold ? "bold" : "",
+                textDecalState.isItalic ? "italic" : "",
+                textDecalState.isUnderline ? "underline" : "",
+              ]}
               onValueChange={(values) =>
                 setTextDecalState((prev) => ({
                   ...prev,
