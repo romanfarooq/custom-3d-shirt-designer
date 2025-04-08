@@ -9,7 +9,7 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
     thickness: number;
   } | null>(null);
 
-  const baseThickness = decal.fontSize * (decal.isBold ? 0.1 : 0.05);
+  const baseThickness = decal.fontSize * (decal.isBold ? 0.15 : 0.08);
 
   return (
     <>
@@ -19,6 +19,8 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
         anchorY="middle"
         outlineColor="white"
         outlineWidth={0.05}
+        scale={[-1, 1, 1]}
+        rotation={[0, 0, Math.PI]}
         fontSize={decal.fontSize}
         fontWeight={decal.isBold ? "bold" : "normal"}
         fontStyle={decal.isItalic ? "italic" : "normal"}
@@ -31,7 +33,7 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
             Number.isFinite(bbox.max.x)
           ) {
             const textWidth = bbox.max.x - bbox.min.x;
-            const underlineY = bbox.min.y - baseThickness * 1.5;
+            const underlineY = (bbox.max.y + baseThickness) * 0.8;
             setUnderline({
               y: underlineY,
               width: textWidth,
