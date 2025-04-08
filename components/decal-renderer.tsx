@@ -53,9 +53,7 @@ export function DecalRenderer({
             >
               <RenderTexture attach="map" anisotropy={16}>
                 <PerspectiveCamera makeDefault manual position={[0, 0, 5]} />
-                <group scale={[1 / decal.scale.x, 1 / decal.scale.y, 1]}>
-                  <TextDecalElement decal={decal} />
-                </group>
+                <TextDecalElement decal={decal} />
               </RenderTexture>
             </meshBasicMaterial>
           </Decal>

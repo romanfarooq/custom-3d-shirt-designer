@@ -12,7 +12,7 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
   const baseThickness = decal.fontSize * (decal.isBold ? 0.15 : 0.08);
 
   return (
-    <>
+    <group scale={[1 / decal.scale.x, 1 / decal.scale.y, 1]}>
       <Text
         color="black"
         anchorX="center"
@@ -50,6 +50,6 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
           <meshBasicMaterial color="black" />
         </mesh>
       )}
-    </>
+    </group>
   );
 }
