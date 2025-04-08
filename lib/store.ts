@@ -103,20 +103,22 @@ export interface ClothingState {
   }) => void;
 }
 
-const BASE_CONTROL_POINTS: {
+export interface ControlPointOptions {
   position: Vector3;
   type: ControlPointName;
   cursor: string;
-}[] = [
-  { position: new Vector3(-0.5, -0.5, 0), type: "tl", cursor: "nwse-resize" },
-  { position: new Vector3(0.5, -0.5, 0), type: "tr", cursor: "nesw-resize" },
-  { position: new Vector3(-0.5, 0.5, 0), type: "bl", cursor: "nesw-resize" },
-  { position: new Vector3(0.5, 0.5, 0), type: "br", cursor: "nwse-resize" },
-  { position: new Vector3(0, -0.5, 0), type: "t", cursor: "ns-resize" },
+}
+
+const BASE_CONTROL_POINTS: ControlPointOptions[] = [
+  { position: new Vector3(0, -0.7, 0), type: "rot", cursor: "grab" },
   { position: new Vector3(0.5, 0, 0), type: "r", cursor: "ew-resize" },
   { position: new Vector3(0, 0.5, 0), type: "b", cursor: "ns-resize" },
+  { position: new Vector3(0, -0.5, 0), type: "t", cursor: "ns-resize" },
   { position: new Vector3(-0.5, 0, 0), type: "l", cursor: "ew-resize" },
-  { position: new Vector3(0, -0.7, 0), type: "rot", cursor: "grab" },
+  { position: new Vector3(0.5, 0.5, 0), type: "br", cursor: "nwse-resize" },
+  { position: new Vector3(0.5, -0.5, 0), type: "tr", cursor: "nesw-resize" },
+  { position: new Vector3(-0.5, 0.5, 0), type: "bl", cursor: "nesw-resize" },
+  { position: new Vector3(-0.5, -0.5, 0), type: "tl", cursor: "nwse-resize" },
 ];
 
 const calculateControlPoints = (

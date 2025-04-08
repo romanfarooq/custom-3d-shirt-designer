@@ -68,7 +68,7 @@ export function TextDecalInput() {
   ]);
 
   const handleAddText = () => {
-    if (!textDecalState.text.trim() || !textDecalState.fontFamily) return;
+    if (!textDecalState.text.trim()) return;
     if (activeDecal?.id && activeDecal?.type === "text") {
       updateTextDecal({
         ...textDecalState,

@@ -1,7 +1,7 @@
 import { type Mesh, Raycaster } from "three";
 import { type RefObject, useEffect, useRef } from "react";
 import { type DecalItem, useClothingStore } from "@/lib/store";
-import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
+import { type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 
 export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
   const {
