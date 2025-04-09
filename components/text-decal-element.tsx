@@ -1,10 +1,10 @@
 import type { Mesh } from "three";
 import type { DecalItem } from "@/lib/store";
-import { useRef } from "react";
+import { useState } from "react";
 import { Text } from "@react-three/drei";
 
 export function TextDecalElement({ decal }: { decal: DecalItem }) {
-  const underlineRef = useRef<{
+  const [underline, setUnderline] = useState<{
     y: number;
     width: number;
     thickness: number;
@@ -17,11 +17,11 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
       const baseThickness = decal.fontSize * (decal.isBold ? 0.15 : 0.08);
       const textWidth = bbox.max.x - bbox.min.x;
       const underlineY = (bbox.max.y + baseThickness) * 0.8;
-      underlineRef.current = {
+      setUnderline({
         y: underlineY,
         width: textWidth,
         thickness: baseThickness,
-      };
+      });
     }
   }
 
@@ -40,11 +40,9 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
       >
         {decal.text}
       </Text>
-      {decal.isUnderline && underlineRef.current && (
-        <mesh position={[0, underlineRef.current.y, -0.01]}>
-          <planeGeometry
-            args={[underlineRef.current.width, underlineRef.current.thickness]}
-          />
+      {decal.isUnderline && underline && (
+        <mesh position={[0, underline.y, -0.01]}>
+          <planeGeometry args={[underline.width, underline.thickness]} />
           <meshBasicMaterial color={decal.fontColor} />
         </mesh>
       )}
