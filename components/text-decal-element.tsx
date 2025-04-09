@@ -33,7 +33,6 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
         scale={[-1, 1, 1]}
         rotation={[0, 0, Math.PI]}
         onSync={computeUnderline}
-        font={decal.fontFamily}
         color={decal.fontColor}
         fontSize={decal.fontSize}
         fontWeight={decal.isBold ? "bold" : "normal"}
