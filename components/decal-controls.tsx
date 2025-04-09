@@ -1,14 +1,18 @@
 "use client";
 
 import { Decal } from "@react-three/drei";
+import { useShallow } from "zustand/shallow";
 import { type ThreeEvent } from "@react-three/fiber";
 import { type ControlPointName, useClothingStore } from "@/lib/store";
 
 export function DecalControls({ visible }: { visible: boolean }) {
-  const {
-    setInteractionMode,
-    interaction: { activeDecal, controlPoints },
-  } = useClothingStore();
+  const { activeDecal, controlPoints, setInteractionMode } = useClothingStore(
+    useShallow((state) => ({
+      activeDecal: state.interaction.activeDecal,
+      controlPoints: state.interaction.controlPoints,
+      setInteractionMode: state.setInteractionMode,
+    })),
+  );
 
   if (!visible || controlPoints.length === 0 || !activeDecal) return null;
 

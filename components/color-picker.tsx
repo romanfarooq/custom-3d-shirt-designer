@@ -1,5 +1,6 @@
 "use client";
 
+import { useShallow } from "zustand/shallow";
 import { cn, isLightColor } from "@/lib/utils";
 import { useClothingStore } from "@/lib/store";
 
@@ -14,12 +15,14 @@ const COLOR_OPTIONS = [
 ];
 
 export function ColorPicker() {
-  const {
-    color,
-    setColor,
-    updateTextDecal,
-    interaction: { activeDecal },
-  } = useClothingStore();
+  const { color, setColor, activeDecal, updateTextDecal } = useClothingStore(
+    useShallow((state) => ({
+      color: state.color,
+      setColor: state.setColor,
+      updateTextDecal: state.updateTextDecal,
+      activeDecal: state.interaction.activeDecal,
+    })),
+  );
 
   const isTextDecal = activeDecal?.type === "text";
 

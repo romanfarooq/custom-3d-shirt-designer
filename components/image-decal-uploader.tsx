@@ -2,17 +2,21 @@
 
 import { type ChangeEvent, useRef } from "react";
 import { Label } from "@/components/ui/label";
+import { useShallow } from "zustand/shallow";
 import { useClothingStore } from "@/lib/store";
 
 export function ImageDecalUploader() {
-  const {
-    addImageDecal,
-    interaction: { activeDecal, mode },
-  } = useClothingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isPlacingDecal = mode === "placing";
 
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+  const { mode, activeDecal, addImageDecal } = useClothingStore(
+    useShallow((state) => ({
+      mode: state.interaction.mode,
+      addImageDecal: state.addImageDecal,
+      activeDecal: state.interaction.activeDecal,
+    })),
+  );
+
+  function handleImageUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -27,7 +31,7 @@ export function ImageDecalUploader() {
         fileInputRef.current.value = "";
       }
     };
-  };
+  }
 
   return (
     <div className="mb-8">
@@ -44,7 +48,7 @@ export function ImageDecalUploader() {
           <span className="text-gray-500">Click to Upload Image</span>
         </Label>
 
-        {isPlacingDecal && activeDecal?.type === "image" && (
+        {mode === "placing" && activeDecal?.type === "image" && (
           <p className="text-sm text-gray-500 italic">
             Click on the shirt surface to place image
           </p>

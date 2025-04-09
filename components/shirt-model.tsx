@@ -3,6 +3,7 @@
 import type { Mesh } from "three";
 import { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
+import { useShallow } from "zustand/shallow";
 import { useClothingStore } from "@/lib/store";
 import { DecalControls } from "@/components/decal-controls";
 import { DecalRenderer } from "@/components/decal-renderer";
@@ -12,11 +13,14 @@ export function ShirtModel() {
   const meshRef = useRef<Mesh>(null);
   const { nodes, materials } = useGLTF("/shirt_man.glb");
 
-  const {
-    color,
-    decals,
-    interaction: { mode, activeDecal },
-  } = useClothingStore();
+  const { mode, color, decals, activeDecal } = useClothingStore(
+    useShallow((state) => ({
+      color: state.color,
+      decals: state.decals,
+      mode: state.interaction.mode,
+      activeDecal: state.interaction.activeDecal,
+    })),
+  );
 
   const { handleClickMesh, handlePointerDown } = useShirtInteractions(meshRef);
 

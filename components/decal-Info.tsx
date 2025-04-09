@@ -3,16 +3,20 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Trash2, Type } from "lucide-react";
+import { useShallow } from "zustand/shallow";
 import { useClothingStore } from "@/lib/store";
 
 export function DecalInfo() {
-  const {
-    decals,
-    removeDecal,
-    setActiveDecal,
-    interaction: { activeDecal, mode },
-  } = useClothingStore();
-  const isPlacingDecal = mode === "placing";
+  const { mode, decals, removeDecal, activeDecal, setActiveDecal } =
+    useClothingStore(
+      useShallow((state) => ({
+        decals: state.decals,
+        mode: state.interaction.mode,
+        removeDecal: state.removeDecal,
+        setActiveDecal: state.setActiveDecal,
+        activeDecal: state.interaction.activeDecal,
+      })),
+    );
 
   if (decals.length === 0) return null;
 
@@ -60,7 +64,7 @@ export function DecalInfo() {
         ))}
       </div>
 
-      {isPlacingDecal && (
+      {mode === "placing" && (
         <p className="text-sm text-gray-500">
           Click on the shirt surface to place image or text
         </p>

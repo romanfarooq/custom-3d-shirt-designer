@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useShallow } from "zustand/shallow";
 import { useClothingStore } from "@/lib/store";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -25,11 +26,14 @@ export function TextDecalInput() {
     isUnderline: false,
   });
 
-  const {
-    addTextDecal,
-    updateTextDecal,
-    interaction: { activeDecal, mode },
-  } = useClothingStore();
+  const { mode, activeDecal, addTextDecal, updateTextDecal } = useClothingStore(
+    useShallow((state) => ({
+      mode: state.interaction.mode,
+      addTextDecal: state.addTextDecal,
+      updateTextDecal: state.updateTextDecal,
+      activeDecal: state.interaction.activeDecal,
+    })),
+  );
 
   const isPlacingDecal = mode === "placing";
 
