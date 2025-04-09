@@ -12,7 +12,7 @@ export interface DecalItem {
   position: Vector3 | null;
   type: "image" | "text";
   text: string | null;
-  fontFamily: string | null;
+  fontFamily: string;
   isBold: boolean;
   isItalic: boolean;
   isUnderline: boolean;
@@ -184,7 +184,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
           rotation: new Euler(Math.PI / 2, 0, 0),
           type: "image",
           text: null,
-          fontFamily: null,
+          fontFamily: "",
           isBold: false,
           isItalic: false,
           isUnderline: false,

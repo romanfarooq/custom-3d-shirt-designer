@@ -26,7 +26,8 @@ export function ColorPicker() {
   const currentColor = isTextDecal ? activeDecal.fontColor : color;
 
   function handleColorChange(newColor: string) {
-    isTextDecal ? updateTextDecal({ fontColor: newColor }) : setColor(newColor);
+    if (isTextDecal) updateTextDecal({ fontColor: newColor });
+    else setColor(newColor);
   }
 
   return (
