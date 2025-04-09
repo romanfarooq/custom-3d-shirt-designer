@@ -17,6 +17,7 @@ export interface DecalItem {
   isItalic: boolean;
   isUnderline: boolean;
   fontSize: number;
+  fontColor: string;
 }
 
 export type ControlPointName =
@@ -100,6 +101,7 @@ export interface ClothingState {
     isItalic?: boolean;
     isUnderline?: boolean;
     fontSize?: number;
+    fontColor?: string;
   }) => void;
 }
 
@@ -187,6 +189,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
           isItalic: false,
           isUnderline: false,
           fontSize: 0,
+          fontColor: "#1F2937",
         };
 
         return {
@@ -405,6 +408,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
         isItalic: textProps.isItalic ?? false,
         isUnderline: textProps.isUnderline ?? false,
         fontSize: textProps.fontSize ?? 0,
+        fontColor: "#000000", // Default font color is black
       };
 
       return {
@@ -438,6 +442,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
                 isItalic: textProps.isItalic ?? decal.isItalic,
                 isUnderline: textProps.isUnderline ?? decal.isUnderline,
                 fontSize: textProps.fontSize ?? decal.fontSize,
+                fontColor: textProps.fontColor ?? decal.fontColor,
               }
             : decal,
         ),
@@ -451,6 +456,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
             isItalic: textProps.isItalic ?? activeDecal.isItalic,
             isUnderline: textProps.isUnderline ?? activeDecal.isUnderline,
             fontSize: textProps.fontSize ?? activeDecal.fontSize,
+            fontColor: textProps.fontColor ?? activeDecal.fontColor,
           },
         },
       };

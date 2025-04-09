@@ -14,21 +14,37 @@ const COLOR_OPTIONS = [
 ];
 
 export function ColorPicker() {
-  const { color, setColor } = useClothingStore();
+  const {
+    color,
+    setColor,
+    updateTextDecal,
+    interaction: { activeDecal },
+  } = useClothingStore();
+
+  const isTextDecal = activeDecal?.type === "text";
+
+  const currentColor = isTextDecal ? activeDecal.fontColor : color;
+
+  function handleColorChange(newColor: string) {
+    isTextDecal ? updateTextDecal({ fontColor: newColor }) : setColor(newColor);
+  }
 
   return (
     <div className="mb-8">
-      <h3 className="mb-4 text-lg font-medium text-gray-800">Choose Color</h3>
+      <h3 className="mb-4 text-lg font-medium text-gray-800">
+        Choose {isTextDecal ? "Text" : "Shirt"} Color
+      </h3>
       <div className="flex flex-wrap gap-3">
         {COLOR_OPTIONS.map((colorOption) => (
           <button
             key={colorOption.value}
-            title={colorOption.name}
-            onClick={() => setColor(colorOption.value)}
             style={{ backgroundColor: colorOption.value }}
+            onClick={() => handleColorChange(colorOption.value)}
             className={cn(
               "h-10 w-10 cursor-pointer rounded-full border-2 transition-all hover:scale-110",
-              color === colorOption.value ? "border-accent" : "border-gray-200",
+              currentColor === colorOption.value
+                ? "border-accent"
+                : "border-gray-200",
             )}
           />
         ))}
@@ -36,23 +52,22 @@ export function ColorPicker() {
         <div className="relative">
           <input
             type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
+            value={currentColor}
+            onChange={(e) => handleColorChange(e.target.value)}
             className="absolute inset-0 h-10 w-10 cursor-pointer overflow-hidden rounded-sm opacity-0"
           />
           <div
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-sm border-2 transition-all hover:scale-110",
-              COLOR_OPTIONS.some((opt) => opt.value === color)
+              COLOR_OPTIONS.some((opt) => opt.value === currentColor)
                 ? "border-gray-200"
                 : "border-accent",
             )}
-            style={{ backgroundColor: color }}
-            title="Custom Color"
+            style={{ backgroundColor: currentColor }}
           >
             <span
               className="text-xs font-bold"
-              style={{ color: isLightColor(color) ? "#000" : "#fff" }}
+              style={{ color: isLightColor(currentColor) ? "#000" : "#fff" }}
             >
               +
             </span>

@@ -14,13 +14,11 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
   return (
     <group scale={[1 / decal.scale.x, 1 / decal.scale.y, 1]}>
       <Text
-        color="black"
         anchorX="center"
         anchorY="middle"
-        outlineColor="white"
-        outlineWidth={0.05}
         scale={[-1, 1, 1]}
         rotation={[0, 0, Math.PI]}
+        color={decal.fontColor}
         fontSize={decal.fontSize}
         fontWeight={decal.isBold ? "bold" : "normal"}
         fontStyle={decal.isItalic ? "italic" : "normal"}
@@ -47,7 +45,7 @@ export function TextDecalElement({ decal }: { decal: DecalItem }) {
       {decal.isUnderline && underline && (
         <mesh position={[0, underline.y, -0.01]}>
           <planeGeometry args={[underline.width, underline.thickness]} />
-          <meshBasicMaterial color="black" />
+          <meshBasicMaterial color={decal.fontColor} />
         </mesh>
       )}
     </group>
