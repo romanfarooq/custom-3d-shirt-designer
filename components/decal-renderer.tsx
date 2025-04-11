@@ -6,14 +6,14 @@ import { Decal, RenderTexture, PerspectiveCamera } from "@react-three/drei";
 interface DecalRendererProps {
   mode: string;
   decals: DecalItem[];
-  activeDecal: DecalItem | null;
+  activeDecalId: string | undefined;
   onPointerDown: (event: ThreeEvent<PointerEvent>, decal: DecalItem) => void;
 }
 
 export function DecalRenderer({
   mode,
   decals,
-  activeDecal,
+  activeDecalId,
   onPointerDown,
 }: DecalRendererProps) {
   const isDragging = mode === "dragging";
@@ -34,7 +34,7 @@ export function DecalRenderer({
               transparent
               polygonOffset
               polygonOffsetFactor={-1}
-              opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
+              opacity={isDragging && activeDecalId === decal.id ? 0.8 : 1}
             />
           </Decal>
         ) : decal.type === "text" && decal.text && decal.position ? (
@@ -49,7 +49,7 @@ export function DecalRenderer({
               transparent
               polygonOffset
               polygonOffsetFactor={-1}
-              opacity={isDragging && activeDecal?.id === decal.id ? 0.8 : 1}
+              opacity={isDragging && activeDecalId === decal.id ? 0.8 : 1}
             >
               <RenderTexture attach="map" anisotropy={16}>
                 <PerspectiveCamera makeDefault manual position={[0, 0, 5]} />

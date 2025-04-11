@@ -8,11 +8,11 @@ import { useClothingStore } from "@/lib/store";
 export function ImageDecalUploader() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { mode, activeDecal, addImageDecal } = useClothingStore(
+  const { mode, activeDecalType, addImageDecal } = useClothingStore(
     useShallow((state) => ({
       mode: state.interaction.mode,
       addImageDecal: state.addImageDecal,
-      activeDecal: state.interaction.activeDecal,
+      activeDecalType: state.interaction.activeDecal?.type,
     })),
   );
 
@@ -48,7 +48,7 @@ export function ImageDecalUploader() {
           <span className="text-gray-500">Click to Upload Image</span>
         </Label>
 
-        {mode === "placing" && activeDecal?.type === "image" && (
+        {mode === "placing" && activeDecalType === "image" && (
           <p className="text-sm text-gray-500 italic">
             Click on the shirt surface to place image
           </p>

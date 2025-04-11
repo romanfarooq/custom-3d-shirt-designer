@@ -7,14 +7,14 @@ import { useShallow } from "zustand/shallow";
 import { useClothingStore } from "@/lib/store";
 
 export function DecalInfo() {
-  const { mode, decals, removeDecal, activeDecal, setActiveDecal } =
+  const { mode, decals, removeDecal, activeDecalId, setActiveDecal } =
     useClothingStore(
       useShallow((state) => ({
         decals: state.decals,
         mode: state.interaction.mode,
         removeDecal: state.removeDecal,
         setActiveDecal: state.setActiveDecal,
-        activeDecal: state.interaction.activeDecal,
+        activeDecalId: state.interaction.activeDecal?.id,
       })),
     );
 
@@ -32,7 +32,7 @@ export function DecalInfo() {
             onClick={() => setActiveDecal(decal)}
             className={cn(
               "relative cursor-pointer rounded border-2 p-1",
-              activeDecal?.id === decal.id ? "border-black" : "border-gray-200",
+              activeDecalId === decal.id ? "border-black" : "border-gray-200",
             )}
           >
             {decal.type === "image" && decal.image ? (

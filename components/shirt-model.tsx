@@ -13,12 +13,12 @@ export function ShirtModel() {
   const meshRef = useRef<Mesh>(null);
   const { nodes, materials } = useGLTF("/shirt_man.glb");
 
-  const { mode, color, decals, activeDecal } = useClothingStore(
+  const { mode, color, decals, activeDecalId } = useClothingStore(
     useShallow((state) => ({
       color: state.color,
       decals: state.decals,
       mode: state.interaction.mode,
-      activeDecal: state.interaction.activeDecal,
+      activeDecalId: state.interaction.activeDecal?.id,
     })),
   );
 
@@ -38,12 +38,12 @@ export function ShirtModel() {
       <DecalRenderer
         mode={mode}
         decals={decals}
-        activeDecal={activeDecal}
+        activeDecalId={activeDecalId}
         onPointerDown={handlePointerDown}
       />
 
       <DecalControls
-        visible={!!activeDecal?.id && mode !== "dragging" && mode !== "placing"}
+        visible={!!activeDecalId && mode !== "dragging" && mode !== "placing"}
       />
     </mesh>
   );

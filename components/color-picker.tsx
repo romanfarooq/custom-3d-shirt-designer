@@ -15,18 +15,25 @@ const COLOR_OPTIONS = [
 ];
 
 export function ColorPicker() {
-  const { color, setColor, activeDecal, updateTextDecal } = useClothingStore(
+  const {
+    color,
+    setColor,
+    updateTextDecal,
+    activeDecalType,
+    activeDecalFontColor,
+  } = useClothingStore(
     useShallow((state) => ({
       color: state.color,
       setColor: state.setColor,
       updateTextDecal: state.updateTextDecal,
-      activeDecal: state.interaction.activeDecal,
+      activeDecalType: state.interaction.activeDecal?.type,
+      activeDecalFontColor: state.interaction.activeDecal?.fontColor,
     })),
   );
 
-  const isTextDecal = activeDecal?.type === "text";
+  const isTextDecal = activeDecalType === "text";
 
-  const currentColor = isTextDecal ? activeDecal.fontColor : color;
+  const currentColor = isTextDecal ? activeDecalFontColor! : color;
 
   function handleColorChange(newColor: string) {
     if (isTextDecal) updateTextDecal({ fontColor: newColor });

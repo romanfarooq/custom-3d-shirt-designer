@@ -26,12 +26,31 @@ export function TextDecalInput() {
     isUnderline: false,
   });
 
-  const { mode, activeDecal, addTextDecal, updateTextDecal } = useClothingStore(
+  const {
+    mode,
+    addTextDecal,
+    activeDecalId,
+    updateTextDecal,
+    activeDecalType,
+    activeDecalText,
+    activeDecalIsItalic,
+    activeDecalIsUnderline,
+    activeDecalFontSize,
+    activeDecalIsBold,
+    activeDecalFontFamily,
+  } = useClothingStore(
     useShallow((state) => ({
       mode: state.interaction.mode,
       addTextDecal: state.addTextDecal,
       updateTextDecal: state.updateTextDecal,
-      activeDecal: state.interaction.activeDecal,
+      activeDecalId: state.interaction.activeDecal?.id,
+      activeDecalType: state.interaction.activeDecal?.type,
+      activeDecalText: state.interaction.activeDecal?.text,
+      activeDecalIsBold: state.interaction.activeDecal?.isBold,
+      activeDecalIsItalic: state.interaction.activeDecal?.isItalic,
+      activeDecalIsUnderline: state.interaction.activeDecal?.isUnderline,
+      activeDecalFontSize: state.interaction.activeDecal?.fontSize,
+      activeDecalFontFamily: state.interaction.activeDecal?.fontFamily,
     })),
   );
 
@@ -39,17 +58,22 @@ export function TextDecalInput() {
 
   useEffect(() => {
     if (
-      activeDecal?.text &&
-      activeDecal?.fontFamily &&
-      activeDecal?.type === "text"
+      activeDecalId &&
+      activeDecalType === "text" &&
+      activeDecalText &&
+      activeDecalFontSize &&
+      activeDecalFontFamily &&
+      activeDecalIsBold !== undefined &&
+      activeDecalIsItalic !== undefined &&
+      activeDecalIsUnderline !== undefined
     ) {
       setTextDecalState({
-        text: activeDecal.text,
-        fontFamily: activeDecal.fontFamily,
-        fontSize: String(activeDecal.fontSize),
-        isBold: activeDecal.isBold,
-        isItalic: activeDecal.isItalic,
-        isUnderline: activeDecal.isUnderline,
+        text: activeDecalText,
+        fontFamily: activeDecalFontFamily,
+        fontSize: String(activeDecalFontSize),
+        isBold: activeDecalIsBold,
+        isItalic: activeDecalIsItalic,
+        isUnderline: activeDecalIsUnderline,
       });
     } else {
       setTextDecalState({
@@ -62,18 +86,19 @@ export function TextDecalInput() {
       });
     }
   }, [
-    activeDecal?.text,
-    activeDecal?.type,
-    activeDecal?.fontSize,
-    activeDecal?.fontFamily,
-    activeDecal?.isBold,
-    activeDecal?.isItalic,
-    activeDecal?.isUnderline,
+    activeDecalId,
+    activeDecalType,
+    activeDecalText,
+    activeDecalIsBold,
+    activeDecalFontSize,
+    activeDecalIsItalic,
+    activeDecalFontFamily,
+    activeDecalIsUnderline,
   ]);
 
   function handleAddText() {
     if (!textDecalState.text.trim()) return;
-    if (activeDecal?.id && activeDecal?.type === "text") {
+    if (activeDecalId && activeDecalType === "text") {
       updateTextDecal({
         ...textDecalState,
         fontSize: parseInt(textDecalState.fontSize) || 10,
@@ -200,20 +225,20 @@ export function TextDecalInput() {
           onClick={handleAddText}
           className="h-10 w-full cursor-pointer rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white transition-colors hover:from-indigo-700 hover:to-purple-700"
         >
-          {activeDecal?.id && activeDecal?.type === "text"
+          {activeDecalId && activeDecalType === "text"
             ? "Update Text"
             : "Add Text"}{" "}
           to Shirt
         </Button>
 
-        {isPlacingDecal && activeDecal?.type === "text" && (
+        {isPlacingDecal && activeDecalType === "text" && (
           <p className="mt-1 text-sm text-gray-500 italic">
             Click on the shirt surface to place text
           </p>
         )}
       </div>
 
-      {activeDecal && !isPlacingDecal && (
+      {activeDecalId && !isPlacingDecal && (
         <p className="mt-4 text-sm text-gray-500">
           Drag the handles to resize or rotate the image or text
         </p>
