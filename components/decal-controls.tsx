@@ -6,15 +6,28 @@ import { type ThreeEvent } from "@react-three/fiber";
 import { type ControlPointName, useClothingStore } from "@/lib/store";
 
 export function DecalControls({ visible }: { visible: boolean }) {
-  const { activeDecal, controlPoints, setInteractionMode } = useClothingStore(
+  const {
+    controlPoints,
+    setInteractionMode,
+    activeDecalScale,
+    activeDecalRotation,
+  } = useClothingStore(
     useShallow((state) => ({
-      activeDecal: state.interaction.activeDecal,
       controlPoints: state.interaction.controlPoints,
       setInteractionMode: state.setInteractionMode,
+      activeDecalScale: state.interaction.activeDecal?.scale,
+      activeDecalRotation: state.interaction.activeDecal?.rotation,
     })),
   );
 
-  if (!visible || controlPoints.length === 0 || !activeDecal) return null;
+  if (
+    !visible ||
+    !activeDecalScale ||
+    !activeDecalRotation ||
+    controlPoints.length === 0
+  ) {
+    return null;
+  }
 
   function handlePointerDown(
     event: ThreeEvent<PointerEvent>,
@@ -22,8 +35,8 @@ export function DecalControls({ visible }: { visible: boolean }) {
   ) {
     event.stopPropagation();
 
-    const startScale = activeDecal?.scale.clone();
-    const startRotation = activeDecal?.rotation.clone();
+    const startScale = activeDecalScale?.clone();
+    const startRotation = activeDecalRotation?.clone();
     const startPointerPosition = event.point.clone();
 
     if (activeControlPoint === "rot") {
@@ -48,7 +61,7 @@ export function DecalControls({ visible }: { visible: boolean }) {
           key={point.type}
           scale={[1, 1, 20]}
           position={point.position}
-          rotation={activeDecal.rotation}
+          rotation={activeDecalRotation}
           onPointerDown={(e) => handlePointerDown(e, point.type)}
           onPointerOver={() => {
             document.body.style.cursor = point.cursor;

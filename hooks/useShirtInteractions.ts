@@ -10,14 +10,15 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
     placeDecal,
     dragOffset,
     startScale,
-    activeDecal,
     startRotation,
+    activeDecalId,
     setActiveDecal,
     updateDecalScale,
     activeControlPoint,
     setInteractionMode,
     updateDecalPosition,
     updateDecalRotation,
+    activeDecalPosition,
     startPointerPosition,
   } = useClothingStore(
     useShallow((state) => ({
@@ -27,12 +28,13 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
       updateDecalScale: state.updateDecalScale,
       startScale: state.interaction.startScale,
       dragOffset: state.interaction.dragOffset,
-      activeDecal: state.interaction.activeDecal,
       setInteractionMode: state.setInteractionMode,
       updateDecalPosition: state.updateDecalPosition,
       updateDecalRotation: state.updateDecalRotation,
       startRotation: state.interaction.startRotation,
+      activeDecalId: state.interaction.activeDecal?.id,
       activeControlPoint: state.interaction.activeControlPoint,
+      activeDecalPosition: state.interaction.activeDecal?.position,
       startPointerPosition: state.interaction.startPointerPosition,
     })),
   );
@@ -48,12 +50,12 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
 
   useEffect(() => {
     function handleInActiveDecal() {
-      if (!activeDecal?.id || mode !== "idle") return;
+      if (!activeDecalId || mode !== "idle") return;
       setActiveDecal(null);
     }
     gl.domElement.addEventListener("click", handleInActiveDecal);
     return () => gl.domElement.removeEventListener("click", handleInActiveDecal);
-  }, [activeDecal?.id, gl.domElement, mode, setActiveDecal]);
+  }, [activeDecalId, gl.domElement, mode, setActiveDecal]);
 
   useEffect(() => {
     function handleGlobalPointerUp() {
@@ -74,7 +76,7 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
   function handleClickMesh(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
 
-    if (!meshRef.current || !isPlacingDecal || !activeDecal) return;
+    if (!meshRef.current || !isPlacingDecal || !activeDecalId) return;
 
     const worldPosition = event.point;
     const localPosition = meshRef.current.worldToLocal(worldPosition.clone());
@@ -104,14 +106,14 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
   useFrame(() => {
     if (!meshRef.current) return;
 
-    if (isDragging && dragOffset && activeDecal) {
+    if (isDragging && dragOffset && activeDecalId) {
       handleDragging();
     }
 
     if (
       startScale &&
       isResizing &&
-      activeDecal &&
+      activeDecalId &&
       activeControlPoint &&
       startPointerPosition
     ) {
@@ -120,7 +122,7 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
 
     if (
       isRotating &&
-      activeDecal &&
+      activeDecalId &&
       startRotation &&
       startPointerPosition &&
       activeControlPoint === "rot"
@@ -159,7 +161,7 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
       startScale &&
       startPointerPosition &&
       activeControlPoint &&
-      activeDecal?.position
+      activeDecalPosition
     ) {
       const currentPoint = intersects[0].point;
 
@@ -247,11 +249,11 @@ export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
       intersects.length > 0 &&
       startRotation &&
       startPointerPosition &&
-      activeDecal?.position
+      activeDecalPosition
     ) {
       const currentPoint = intersects[0].point;
 
-      const worldDecalPos = activeDecal.position.clone();
+      const worldDecalPos = activeDecalPosition.clone();
       meshRef.current!.localToWorld(worldDecalPos);
 
       const startVector = startPointerPosition.clone().sub(worldDecalPos);
