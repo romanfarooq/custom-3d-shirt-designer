@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/shallow";
 import { type Mesh, Raycaster } from "three";
 import { type RefObject, useEffect, useRef } from "react";
 import { type DecalItem, useClothingStore } from "@/lib/store";
@@ -5,22 +6,36 @@ import { type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 
 export function useShirtInteractions(meshRef: RefObject<Mesh | null>) {
   const {
+    mode,
     placeDecal,
+    dragOffset,
+    startScale,
+    activeDecal,
+    startRotation,
     setActiveDecal,
     updateDecalScale,
+    activeControlPoint,
     setInteractionMode,
     updateDecalPosition,
     updateDecalRotation,
-    interaction: {
-      mode,
-      dragOffset,
-      activeDecal,
-      activeControlPoint,
-      startScale,
-      startRotation,
-      startPointerPosition,
-    },
-  } = useClothingStore();
+    startPointerPosition,
+  } = useClothingStore(
+    useShallow((state) => ({
+      mode: state.interaction.mode,
+      placeDecal: state.placeDecal,
+      setActiveDecal: state.setActiveDecal,
+      updateDecalScale: state.updateDecalScale,
+      startScale: state.interaction.startScale,
+      dragOffset: state.interaction.dragOffset,
+      activeDecal: state.interaction.activeDecal,
+      setInteractionMode: state.setInteractionMode,
+      updateDecalPosition: state.updateDecalPosition,
+      updateDecalRotation: state.updateDecalRotation,
+      startRotation: state.interaction.startRotation,
+      activeControlPoint: state.interaction.activeControlPoint,
+      startPointerPosition: state.interaction.startPointerPosition,
+    })),
+  );
 
   const { gl, camera, pointer } = useThree();
 
