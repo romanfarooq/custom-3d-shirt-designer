@@ -408,7 +408,7 @@ export const useClothingStore = create<ClothingState>((set) => ({
         isItalic: textProps.isItalic ?? false,
         isUnderline: textProps.isUnderline ?? false,
         fontSize: textProps.fontSize ?? 0,
-        fontColor: "#000000", // Default font color is black
+        fontColor: "#1F2937", // Default font color is black
       };
 
       return {

@@ -71,7 +71,7 @@ export function TextDecalInput() {
     activeDecal?.isUnderline,
   ]);
 
-  const handleAddText = () => {
+  function handleAddText() {
     if (!textDecalState.text.trim()) return;
     if (activeDecal?.id && activeDecal?.type === "text") {
       updateTextDecal({
@@ -84,7 +84,7 @@ export function TextDecalInput() {
         fontSize: parseInt(textDecalState.fontSize) || 10,
       });
     }
-  };
+  }
 
   return (
     <div className="mb-4">
