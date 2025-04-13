@@ -28,6 +28,7 @@
     "tailwind-merge": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.175.0",
+    "three-stdlib": "^2.35.15",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
@@ -36,6 +37,7 @@
     "@types/node": "^22.14.0",
     "@types/react": "^19.1.1",
     "@types/react-dom": "^19.1.2",
+    "@types/three": "^0.175.0",
     "eslint": "^9.24.0",
     "eslint-config-next": "^15.3.0",
     "prettier": "^3.5.3",
